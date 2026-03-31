@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowRift — API 문서</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0c10;
+  --surface:   #111520;
+  --surface2:  #171c2b;
+  --border:    #1e2840;
+  --accent:    #e85d4a;
+  --accent2:   #4ae8c4;
+  --accent3:   #f0a500;
+  --text:      #d4daf0;
+  --muted:     #5a6280;
+  --code-bg:   #0d1117;
+  --card-glow: rgba(232,93,74,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── noise overlay ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── header ── */
+header {
+  position: relative;
+  padding: 60px 0 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.header-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(232,93,74,0.08) 0%, transparent 70%);
+}
+.game-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 8vw, 96px);
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+  position: relative;
+}
+.game-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent2);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+.version-badge {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 3px 12px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  border-radius: 2px;
+}
+
+/* ── search ── */
+.search-wrap {
+  max-width: 680px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+.search-box {
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  padding: 14px 48px 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(232,93,74,0.15);
+}
+.search-box input::placeholder { color: var(--muted); }
+.search-icon {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 16px; pointer-events: none;
+}
+
+/* autocomplete */
+.autocomplete {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 100;
+  display: none;
+}
+.autocomplete.open { display: block; }
+.ac-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: background .15s;
+}
+.ac-item:hover, .ac-item.selected { background: var(--border); }
+.ac-item .ac-group {
+  font-size: 10px;
+  color: var(--muted);
+  padding: 2px 6px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.ac-item .ac-match { color: var(--accent2); }
+
+/* ── main layout ── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative; z-index: 1;
+}
+
+/* ── section label ── */
+.section-label {
+  display: flex; align-items: center; gap: 14px;
+  margin: 52px 0 24px;
+}
+.section-label::before {
+  content: '';
+  width: 3px; height: 20px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.section-label h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── cards grid ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color .2s, transform .2s, box-shadow .2s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--card-glow);
+}
+.card:hover::before { opacity: 1; }
+.card-icon {
+  font-size: 28px; margin-bottom: 14px; display: block;
+}
+.card-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.card-count {
+  position: absolute; top: 16px; right: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent2);
+  background: rgba(74,232,196,0.08);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(74,232,196,0.2);
+}
+
+/* ── modal overlay ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 860px;
+  position: relative;
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.modal-header {
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+}
+.modal-header-icon { font-size: 26px; }
+.modal-header-info { flex: 1; }
+.modal-header h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.05em;
+  color: #fff;
+}
+.modal-header p {
+  font-size: 13px; color: var(--muted); margin-top: 2px;
+}
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; padding: 4px 8px;
+  transition: color .2s;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--accent); }
+.modal-body { padding: 28px 32px; }
+
+/* ── function list (accordion) ── */
+.fn-list { display: flex; flex-direction: column; gap: 10px; }
+.fn-item {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.fn-trigger {
+  width: 100%; background: var(--surface2);
+  border: none; cursor: pointer;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left;
+  transition: background .15s;
+}
+.fn-trigger:hover { background: var(--border); }
+.fn-trigger.active { background: rgba(232,93,74,0.08); border-bottom: 1px solid var(--border); }
+.fn-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: var(--accent2);
+}
+.fn-brief {
+  font-size: 12px; color: var(--muted); margin-left: auto; padding-left: 10px;
+}
+.fn-chevron {
+  color: var(--muted); font-size: 12px; margin-left: 6px;
+  transition: transform .2s;
+}
+.fn-trigger.active .fn-chevron { transform: rotate(90deg); }
+.fn-detail {
+  display: none;
+  padding: 20px 18px;
+  background: var(--code-bg);
+}
+.fn-detail.open { display: block; }
+
+/* detail sections */
+.detail-section { margin-bottom: 18px; }
+.detail-section:last-child { margin-bottom: 0; }
+.detail-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent3);
+  margin-bottom: 8px;
+}
+.detail-text { font-size: 13px; color: var(--text); line-height: 1.7; }
+
+/* param table */
+.param-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.param-table th {
+  text-align: left; padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+.param-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(30,40,64,0.5);
+  vertical-align: top;
+}
+.param-table tr:last-child td { border-bottom: none; }
+.param-type {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent3);
+  font-size: 12px;
+}
+.param-name {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent2);
+  font-size: 12px;
+}
+
+/* return badge */
+.return-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent3);
+  background: rgba(240,165,0,0.08);
+  border: 1px solid rgba(240,165,0,0.25);
+  padding: 3px 10px;
+  border-radius: 3px;
+}
+
+/* code block */
+.code-block {
+  background: #070a10;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #c9d1d9;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-kw  { color: #ff7b72; }
+.code-fn  { color: #d2a8ff; }
+.code-str { color: #a5d6ff; }
+.code-num { color: #f2cc60; }
+.code-cm  { color: #6a737d; font-style: italic; }
+.code-type { color: #79c0ff; }
+
+/* ── search result panel ── */
+#search-result {
+  margin-top: 40px;
+  display: none;
+}
+#search-result.visible { display: block; }
+.sr-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.sr-header {
+  padding: 22px 28px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.sr-fn-sig {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  color: var(--accent2);
+}
+.sr-group {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--border);
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sr-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── footer ── */
+footer {
+  text-align: center;
+  padding: 40px;
+  margin-top: 80px;
+  border-top: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  position: relative; z-index: 1;
+}
+footer span { color: var(--accent); }
+
+/* utils */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="header-bg"></div>
+  <div class="game-title">SHADOW RIFT</div>
+  <div class="game-subtitle">Allegro5 Game · C API Reference</div>
+  <div class="version-badge">v1.0.0 — 2025</div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <div class="search-box" id="searchBox">
+      <input type="text" id="searchInput" placeholder="함수명 검색... (예: collide, player_update)" autocomplete="off">
+      <span class="search-icon">⌕</span>
+      <div class="autocomplete" id="autocomplete"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="container">
+
+  <!-- search result panel -->
+  <div id="search-result"></div>
+
+  <!-- cards section -->
+  <div id="cards-section">
+    <div class="section-label"><h2>API 모듈 목록</h2></div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+</div>
+
+<!-- ══════════ MODAL ══════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-header-icon" id="modalIcon"></span>
+      <div class="modal-header-info">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDesc"></p>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fn-list" id="fnList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>ShadowRift © 2025 &nbsp;·&nbsp; Built with <span>Allegro5</span> &nbsp;·&nbsp; C API Docs</footer>
+
+<!-- ══════════ DATA + LOGIC ══════════ -->
+<script>
+// ─────────────────────────────────────────────
+//  API DATA
+// ─────────────────────────────────────────────
+const API = {
+  groups: [
+    {
+      id: 'general',
+      icon: '⚙️',
+      name: 'General',
+      desc: '초기화 검증, 난수 생성, AABB 충돌 감지 등 게임 전반에서 사용되는 범용 유틸리티 함수 모음입니다.',
+      fns: [
+        {
+          name: 'must_init',
+          sig: 'void must_init(bool test, const char* description)',
+          brief: '초기화 실패 시 프로그램 종료',
+          desc: 'Allegro 라이브러리 또는 리소스의 초기화 결과를 검사합니다. <code>test</code>가 <code>false</code>이면 오류 메시지를 출력하고 <code>exit(1)</code>로 프로그램을 즉시 종료합니다. 모든 초기화 직후 호출하는 것이 권장됩니다.',
+          params: [
+            { name: 'test', type: 'bool', desc: '초기화 성공 여부. true이면 정상 반환, false이면 종료.' },
+            { name: 'description', type: 'const char*', desc: '실패 시 출력할 리소스 이름 문자열.' },
+          ],
+          ret: 'void',
+          example: `<span class="code-type">ALLEGRO_DISPLAY</span>* disp = <span class="code-fn">al_create_display</span>(<span class="code-num">1200</span>, <span class="code-num">900</span>);
+<span class="code-fn">must_init</span>(disp, <span class="code-str">"display"</span>); <span class="code-cm">// disp == NULL이면 종료</span>
+
+<span class="code-type">ALLEGRO_BITMAP</span>* buf = <span class="code-fn">al_create_bitmap</span>(<span class="code-num">1200</span>, <span class="code-num">900</span>);
+<span class="code-fn">must_init</span>(buf, <span class="code-str">"bitmap buffer"</span>);`
+        },
+        {
+          name: 'between',
+          sig: 'int between(int lo, int hi)',
+          brief: '정수 범위 난수 반환',
+          desc: '<code>[lo, hi)</code> 범위의 정수 난수를 반환합니다. 내부적으로 <code>rand()</code>를 사용하므로, 호출 전 <code>srand()</code>로 시드를 설정하는 것이 좋습니다.',
+          params: [
+            { name: 'lo', type: 'int', desc: '난수 범위의 하한 (포함).' },
+            { name: 'hi', type: 'int', desc: '난수 범위의 상한 (미포함).' },
+          ],
+          ret: 'int',
+          example: `<span class="code-cm">// 적을 x축 130~1070 사이 임의 위치에 스폰</span>
+<span class="code-kw">float</span> spawn_x = (<span class="code-kw">float</span>)<span class="code-fn">between</span>(<span class="code-num">130</span>, <span class="code-num">1070</span>);
+<span class="code-cm">// 0~3 중 랜덤 방향 선택</span>
+<span class="code-kw">int</span> side = <span class="code-fn">between</span>(<span class="code-num">0</span>, <span class="code-num">4</span>);`
+        },
+        {
+          name: 'between_f',
+          sig: 'float between_f(float lo, float hi)',
+          brief: '실수 범위 난수 반환',
+          desc: '<code>[lo, hi]</code> 범위의 부동소수점 난수를 반환합니다. 위치, 속도, 각도 등의 연속적인 값에 활용됩니다.',
+          params: [
+            { name: 'lo', type: 'float', desc: '난수 범위의 하한.' },
+            { name: 'hi', type: 'float', desc: '난수 범위의 상한.' },
+          ],
+          ret: 'float',
+          example: `<span class="code-cm">// 적의 y 위치를 실수 범위로 무작위 지정</span>
+enemy[i].y = <span class="code-fn">between_f</span>(<span class="code-num">130.0f</span>, <span class="code-num">770.0f</span>);
+
+<span class="code-cm">// 목표 좌표 무작위 설정</span>
+<span class="code-kw">float</span> tx = <span class="code-fn">between_f</span>(<span class="code-num">150.0f</span>, <span class="code-num">1050.0f</span>);
+<span class="code-kw">float</span> ty = <span class="code-fn">between_f</span>(<span class="code-num">150.0f</span>, <span class="code-num">750.0f</span>);`
+        },
+        {
+          name: 'collide',
+          sig: 'bool collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2)',
+          brief: 'AABB 사각형 충돌 감지',
+          desc: '두 축 정렬 경계 상자(AABB)가 겹치는지 검사합니다. 어느 한 축이라도 분리되어 있으면 <code>false</code>를 반환합니다. 플레이어-적, 플레이어-아이템 충돌 판정에 사용됩니다.',
+          params: [
+            { name: 'ax1, ay1', type: 'int', desc: '박스 A의 좌상단 좌표.' },
+            { name: 'ax2, ay2', type: 'int', desc: '박스 A의 우하단 좌표.' },
+            { name: 'bx1, by1', type: 'int', desc: '박스 B의 좌상단 좌표.' },
+            { name: 'bx2, by2', type: 'int', desc: '박스 B의 우하단 좌표.' },
+          ],
+          ret: 'bool',
+          example: `<span class="code-cm">// 플레이어(p)와 적(enemy[i]) 충돌 판정</span>
+<span class="code-kw">if</span> (<span class="code-fn">collide</span>(
+    p.x, p.y, p.x + PLAYER_W[<span class="code-num">0</span>], p.y + PLAYER_H[<span class="code-num">0</span>],
+    enemy[i].x, enemy[i].y,
+    enemy[i].x + ENEMY_W[enemy[i].type],
+    enemy[i].y + ENEMY_H[enemy[i].type]))
+{
+    p.hp--;
+    enemy[i].active = <span class="code-kw">false</span>;
+}`
+        },
+      ]
+    },
+    {
+      id: 'display',
+      icon: '🖥️',
+      name: 'Display',
+      desc: 'Allegro 디스플레이와 오프스크린 비트맵 버퍼를 초기화·해제하고, 더블 버퍼링 드로우 사이클을 관리합니다.',
+      fns: [
+        {
+          name: 'disp_init',
+          sig: 'void disp_init(void)',
+          brief: '디스플레이 및 버퍼 비트맵 생성',
+          desc: 'MSAA 멀티샘플 옵션을 설정한 뒤 <code>DISP_W × DISP_H</code> 크기의 Allegro 디스플레이를 생성하고, 게임 내부 해상도(<code>BUFFER_W × BUFFER_H</code>)로 오프스크린 비트맵 버퍼를 생성합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-fn">must_init</span>(<span class="code-fn">al_init</span>(), <span class="code-str">"allegro"</span>);
+<span class="code-fn">disp_init</span>();  <span class="code-cm">// 1200×900 윈도우 + 내부 버퍼 생성</span>`
+        },
+        {
+          name: 'disp_deinit',
+          sig: 'void disp_deinit(void)',
+          brief: '디스플레이 리소스 해제',
+          desc: '생성된 오프스크린 비트맵 버퍼와 Allegro 디스플레이를 순서대로 해제합니다. 프로그램 종료 전 호출해야 메모리 누수를 방지할 수 있습니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-cm">// 게임 루프 종료 후 정리</span>
+<span class="code-fn">disp_deinit</span>();`
+        },
+        {
+          name: 'disp_pre_draw',
+          sig: 'void disp_pre_draw(void)',
+          brief: '렌더 타깃을 오프스크린 버퍼로 전환',
+          desc: '이 함수 호출 이후의 모든 Allegro 드로우 명령은 화면이 아닌 내부 버퍼에 기록됩니다. 프레임 시작 시 <code>al_clear_to_color()</code> 전에 반드시 호출하세요.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-fn">disp_pre_draw</span>();
+<span class="code-fn">al_clear_to_color</span>(<span class="code-fn">al_map_rgb</span>(<span class="code-num">0</span>,<span class="code-num">0</span>,<span class="code-num">0</span>));
+<span class="code-fn">background</span>(<span class="code-num">1</span>);
+<span class="code-fn">player_draw</span>();
+<span class="code-fn">enemy_draw</span>();
+<span class="code-fn">disp_post_draw</span>();`
+        },
+        {
+          name: 'disp_post_draw',
+          sig: 'void disp_post_draw(void)',
+          brief: '버퍼를 화면으로 스케일 출력 후 플립',
+          desc: '오프스크린 버퍼를 백버퍼로 전환 후 <code>DISP_SCALE</code> 배율로 확대 출력합니다. 이후 <code>al_flip_display()</code>로 화면에 최종 반영합니다. <code>disp_pre_draw()</code> 이후 반드시 쌍으로 호출해야 합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-cm">// disp_pre_draw()와 항상 쌍으로 사용</span>
+<span class="code-fn">disp_pre_draw</span>();
+<span class="code-cm">/* ... 드로우 명령 ... */</span>
+<span class="code-fn">disp_post_draw</span>(); <span class="code-cm">// 화면에 최종 출력</span>`
+        },
+      ]
+    },
+    {
+      id: 'keyboard',
+      icon: '⌨️',
+      name: 'Keyboard',
+      desc: '프레임 기반 키보드 입력 상태(눌림/뗌)를 비트 플래그로 추적합니다.',
+      fns: [
+        {
+          name: 'keyboard_init',
+          sig: 'void keyboard_init(void)',
+          brief: '키 상태 배열 초기화',
+          desc: '<code>key[ALLEGRO_KEY_MAX]</code> 배열을 0으로 초기화합니다. 게임 시작 또는 씬 전환 시 호출하여 이전 입력 상태의 잔류를 방지합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-fn">al_install_keyboard</span>();
+<span class="code-fn">keyboard_init</span>(); <span class="code-cm">// key[] 전체를 0으로 클리어</span>`
+        },
+        {
+          name: 'keyboard_update',
+          sig: 'void keyboard_update(ALLEGRO_EVENT* event)',
+          brief: '이벤트로 키 상태 갱신',
+          desc: 'Allegro 이벤트를 받아 키 상태 배열을 갱신합니다.<br><br>• <code>ALLEGRO_EVENT_TIMER</code>: 매 프레임마다 <code>KEY_SEEN</code> 비트를 클리어해 단발 감지를 구현합니다.<br>• <code>ALLEGRO_EVENT_KEY_DOWN</code>: <code>KEY_SEEN | KEY_DOWN</code> 설정.<br>• <code>ALLEGRO_EVENT_KEY_UP</code>: <code>KEY_DOWN</code> 클리어.',
+          params: [
+            { name: 'event', type: 'ALLEGRO_EVENT*', desc: '처리할 Allegro 이벤트 포인터.' },
+          ],
+          ret: 'void',
+          example: `<span class="code-type">ALLEGRO_EVENT</span> ev;
+<span class="code-fn">al_wait_for_event</span>(queue, &ev);
+<span class="code-fn">keyboard_update</span>(&ev);
+
+<span class="code-cm">// 이후 key[] 배열로 입력 확인</span>
+<span class="code-kw">if</span> (key[ALLEGRO_KEY_LEFT]) player.x -= <span class="code-num">4.0f</span>;
+<span class="code-kw">if</span> (key[ALLEGRO_KEY_RIGHT]) player.x += <span class="code-num">4.0f</span>;`
+        },
+      ]
+    },
+    {
+      id: 'sprites',
+      icon: '🎨',
+      name: 'Sprites',
+      desc: '스프라이트 시트에서 서브 비트맵을 잘라내고, 플레이어·적·아이템 스프라이트를 일괄 초기화·해제합니다.',
+      fns: [
+        {
+          name: 'sprite_grab',
+          sig: 'ALLEGRO_BITMAP* sprite_grab(int x, int y, int w, int h)',
+          brief: '시트에서 서브 비트맵 추출',
+          desc: '로드된 스프라이트 시트(<code>sprites._sheet</code>)에서 지정 좌표와 크기로 서브 비트맵을 생성하여 반환합니다. 반환된 비트맵은 시트 메모리를 공유하며, 별도 해제가 필요합니다.',
+          params: [
+            { name: 'x, y', type: 'int', desc: '스프라이트 시트 내 좌상단 픽셀 좌표.' },
+            { name: 'w, h', type: 'int', desc: '추출할 비트맵의 너비와 높이(픽셀).' },
+          ],
+          ret: 'ALLEGRO_BITMAP*',
+          example: `<span class="code-cm">// 시트 (67, 155) 위치에서 창 적 스프라이트 추출</span>
+sprites.enemy[ENEMY_SPEAR] = <span class="code-fn">sprite_grab</span>(
+    <span class="code-num">67</span>, <span class="code-num">155</span>, ENEMY_SPEAR_W, ENEMY_SPEAR_H
+);`
+        },
+        {
+          name: 'sprites_init',
+          sig: 'void sprites_init(void)',
+          brief: '모든 스프라이트 로드 및 초기화',
+          desc: '<code>GameIMG.png</code>를 시트로 로드하고 <code>sprite_grab()</code>을 이용해 플레이어(2 성별 × 3 상태 × 2 방향), 아이템(3종), 적(4종) 전체 서브 비트맵을 구성합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-fn">must_init</span>(<span class="code-fn">al_init_image_addon</span>(), <span class="code-str">"image"</span>);
+<span class="code-fn">sprites_init</span>(); <span class="code-cm">// GameIMG.png 로드 + 전체 슬라이싱</span>`
+        },
+        {
+          name: 'sprites_deinit',
+          sig: 'void sprites_deinit(void)',
+          brief: '모든 스프라이트 비트맵 해제',
+          desc: '플레이어, 아이템, 적의 모든 서브 비트맵과 원본 시트를 순서대로 해제합니다. 이중 해제 방지를 위해 해제 후 포인터를 <code>NULL</code>로 설정합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-cm">// 프로그램 종료 전</span>
+<span class="code-fn">sprites_deinit</span>();
+<span class="code-fn">disp_deinit</span>();`
+        },
+      ]
+    },
+    {
+      id: 'audio',
+      icon: '🔊',
+      name: 'Audio',
+      desc: '게임 효과음 샘플을 초기화하고 재생 준비합니다. Allegro 오디오 애드온을 사용합니다.',
+      fns: [
+        {
+          name: 'audio_init',
+          sig: 'void audio_init(void)',
+          brief: '오디오 시스템 및 샘플 로드',
+          desc: 'Allegro 오디오 시스템을 설치하고 acodec 애드온을 초기화한 뒤 샘플 슬롯을 128개 예약합니다. <code>shot.flac</code>(발사음), <code>explode1.flac</code>, <code>explode2.flac</code>(폭발음)을 로드합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-fn">audio_init</span>();
+<span class="code-cm">// 이후 al_play_sample()로 재생 가능</span>
+<span class="code-fn">al_play_sample</span>(sample_shot, <span class="code-num">1.0</span>, <span class="code-num">0.0</span>, <span class="code-num">1.0</span>,
+    ALLEGRO_PLAYMODE_ONCE, <span class="code-kw">NULL</span>);`
+        },
+        {
+          name: 'audio_deinit',
+          sig: 'void audio_deinit(void)',
+          brief: '오디오 샘플 리소스 해제',
+          desc: '<code>sample_shot</code>, <code>sample_explode[0]</code>, <code>sample_explode[1]</code> 세 개의 샘플을 해제합니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-cm">// 게임 루프 종료 후</span>
+<span class="code-fn">audio_deinit</span>();`
+        },
+      ]
+    },
+    {
+      id: 'score',
+      icon: '🏆',
+      name: 'Score / Ranking',
+      desc: '게임 점수 계산, 파일 기반 랭킹 불러오기·정렬·저장을 담당합니다.',
+      fns: [
+        {
+          name: 'cal_score',
+          sig: 'void cal_score(void)',
+          brief: '점수 계산 및 랭킹 파일 갱신',
+          desc: '<code>score.txt</code>에서 기존 랭킹 데이터를 읽어 들인 뒤, 현재 플레이 점수(<code>frame/60 + chest_cnt×5</code>)를 11번째 항목으로 추가합니다. 버블 정렬(내림차순)로 재정렬 후 상위 10개를 파일에 덮어씁니다.',
+          params: [],
+          ret: 'void',
+          example: `<span class="code-cm">// 게임 종료 직후 호출</span>
+<span class="code-fn">cal_score</span>();
+<span class="code-cm">// score.txt에 상위 10개 랭킹이 저장됨</span>`
+        },
+      ]
+    },
+    {
+      id: 'background',
+      icon: '🌄',
+      name: 'Background',
+      desc: '씬 번호에 따른 배경 이미지 출력 및 게임 화면 레이아웃 렌더링을 담당합니다.',
+      fns: [
+        {
+          name: 'background',
+          sig: 'void background(int n)',
+          brief: '씬 번호에 따른 배경 출력',
+          desc: '<code>n.png</code> 파일을 로드해 1200×900 해상도로 스케일 출력합니다. <code>n</code>이 1~3인 경우 인게임 플레이 영역을 나타내는 검은 사각형 오버레이를 추가합니다. 또한 <code>ingame_male.png</code> 캐릭터 이미지를 좌상단에 렌더링합니다.',
+          params: [
+            { name: 'n', type: 'int', desc: '배경 씬 번호.<br>0: 타이틀, 1~3: 스테이지, 4: 엔딩, 5: 랭킹' },
+          ],
+          ret: 'void',
+          example: `<span class="code-cm">// 타이틀 화면</span>
+<span class="code-fn">background</span>(<span class="code-num">0</span>);
+
+<span class="code-cm">// 1스테이지 배경</span>
+<span class="code-fn">background</span>(<span class="code-num">1</span>);
+
+<span class="code-cm">// 엔딩 화면</span>
+<span class="code-fn">background</span>(<span class="code-num">4</span>);`
+        },
+      ]
+    },
+    {
+      id: 'gameflow',
+      icon: '🎮',
+      name: 'Game Flow',
+      desc: '타이틀·엔딩 씬의 이벤트 루프를 처리하고 메인 게임 루프를 진입점으로 실행합니다.',
+      fns: [
+        {
+          name: '__title',
+          sig: 'int __title(ALLEGRO_EVENT_QUEUE* q)',
+          brief: '타이틀 화면 이벤트 루프',
+          desc: '두 단계의 타이틀 화면(오프닝 → 모드 선택)을 순차 실행합니다. 첫 단계에서 A키를 누르면 다음으로 진행하고, 두 번째 단계에서 Enter를 누르면 게임을 시작합니다. ESC 또는 창 닫기 시 1을 반환하여 프로그램 종료를 알립니다.',
+          params: [
+            { name: 'q', type: 'ALLEGRO_EVENT_QUEUE*', desc: 'Allegro 이벤트 큐 포인터.' },
+          ],
+          ret: 'int — 0: 게임 시작, 1: 프로그램 종료',
+          example: `<span class="code-cm">// 메인 루프 내에서 사용</span>
+<span class="code-kw">while</span> (<span class="code-num">1</span>) {
+    <span class="code-kw">if</span> (<span class="code-fn">__title</span>(queue)) <span class="code-kw">return</span> <span class="code-num">0</span>; <span class="code-cm">// ESC → 종료</span>
+    <span class="code-cm">/* 게임 루프 ... */</span>
+    <span class="code-kw">if</span> (<span class="code-fn">__end</span>(queue)) <span class="code-kw">break</span>;
+}`
+        },
+        {
+          name: '__end',
+          sig: 'int __end(ALLEGRO_EVENT_QUEUE* q)',
+          brief: '엔딩 화면 이벤트 루프',
+          desc: '엔딩 화면에서 A키(재시작) 또는 B키(메뉴 복귀) 입력을 처리한 뒤 랭킹 화면으로 전환합니다. Enter를 누르면 처리를 완료합니다. ESC 또는 창 닫기 시 1을 반환합니다.',
+          params: [
+            { name: 'q', type: 'ALLEGRO_EVENT_QUEUE*', desc: 'Allegro 이벤트 큐 포인터.' },
+          ],
+          ret: 'int — 0: 정상 완료, 1: 프로그램 종료',
+          example: `<span class="code-kw">if</span> (<span class="code-fn">__end</span>(queue)) <span class="code-kw">break</span>; <span class="code-cm">// 종료 신호 시 루프 탈출</span>`
+        },
+        {
+          name: 'obj_init_position',
+          sig: 'void obj_init_position(Enemy* obj, int count)',
+          brief: '적 객체 초기 위치·속도 무작위 설정',
+          desc: '<code>count</code>개의 <code>Enemy</code> 구조체를 초기화합니다. 각 객체의 타입은 인덱스 % 적 타입 수로 결정되고, 위치는 버퍼 크기 안에서 무작위로, 속도(<code>dx, dy</code>)는 ±2.0f로 랜덤 부여됩니다.',
+          params: [
+            { name: 'obj', type: 'Enemy*', desc: '초기화할 Enemy 배열 포인터.' },
+            { name: 'count', type: 'int', desc: '초기화할 적의 수.' },
+          ],
+          ret: 'void',
+          example: `<span class="code-type">Enemy</span> enemies[<span class="code-num">10</span>];
+<span class="code-fn">obj_init_position</span>(enemies, <span class="code-num">10</span>); <span class="code-cm">// 10마리 무작위 배치</span>`
+        },
+      ]
+    },
+  ]
+};
+
+// ─────────────────────────────────────────────
+//  BUILD FLAT FUNCTION INDEX
+// ─────────────────────────────────────────────
+const fnIndex = [];
+API.groups.forEach(g => {
+  g.fns.forEach(f => fnIndex.push({ ...f, group: g.name, groupId: g.id }));
+});
+
+// ─────────────────────────────────────────────
+//  RENDER CARDS
+// ─────────────────────────────────────────────
+const grid = document.getElementById('cardsGrid');
+API.groups.forEach(g => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <span class="card-icon">${g.icon}</span>
+    <span class="card-count">${g.fns.length} fn</span>
+    <div class="card-name">${g.name}</div>
+    <div class="card-desc">${g.desc}</div>
+  `;
+  card.addEventListener('click', () => openModal(g));
+  grid.appendChild(card);
+});
+
+// ─────────────────────────────────────────────
+//  MODAL
+// ─────────────────────────────────────────────
+const overlay  = document.getElementById('modalOverlay');
+const modalIcon  = document.getElementById('modalIcon');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc  = document.getElementById('modalDesc');
+const fnList   = document.getElementById('fnList');
+const modalClose = document.getElementById('modalClose');
+
+function buildFnItem(fn) {
+  const item = document.createElement('div');
+  item.className = 'fn-item';
+
+  const trigger = document.createElement('button');
+  trigger.className = 'fn-trigger';
+  trigger.innerHTML = `
+    <span class="fn-name">${fn.name}()</span>
+    <span class="fn-brief">${fn.brief}</span>
+    <span class="fn-chevron">▶</span>
+  `;
+
+  const detail = document.createElement('div');
+  detail.className = 'fn-detail';
+  detail.innerHTML = buildDetail(fn);
+
+  trigger.addEventListener('click', () => {
+    const open = detail.classList.contains('open');
+    // close all
+    fnList.querySelectorAll('.fn-detail').forEach(d => d.classList.remove('open'));
+    fnList.querySelectorAll('.fn-trigger').forEach(t => t.classList.remove('active'));
+    if (!open) {
+      detail.classList.add('open');
+      trigger.classList.add('active');
+    }
+  });
+
+  item.appendChild(trigger);
+  item.appendChild(detail);
+  return item;
+}
+
+function buildDetail(fn) {
+  const paramRows = fn.params.length
+    ? fn.params.map(p => `<tr>
+        <td class="param-name">${p.name}</td>
+        <td class="param-type">${p.type}</td>
+        <td class="detail-text">${p.desc}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="3" style="color:var(--muted);font-size:12px;padding:8px 12px;">없음</td></tr>`;
+
+  return `
+    <div class="detail-section">
+      <div class="detail-label">시그니처</div>
+      <div class="code-block"><span class="code-fn">${fn.sig}</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">동작 설명</div>
+      <div class="detail-text">${fn.desc}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Parameters</div>
+      <table class="param-table">
+        <thead><tr><th>이름</th><th>타입</th><th>설명</th></tr></thead>
+        <tbody>${paramRows}</tbody>
+      </table>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">Return</div>
+      <span class="return-badge">${fn.ret}</span>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">사용 예시</div>
+      <div class="code-block">${fn.example}</div>
+    </div>
+  `;
+}
+
+function openModal(group) {
+  modalIcon.textContent = group.icon;
+  modalTitle.textContent = group.name;
+  modalDesc.textContent  = group.desc;
+  fnList.innerHTML = '';
+  group.fns.forEach(fn => fnList.appendChild(buildFnItem(fn)));
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+modalClose.addEventListener('click', closeModal);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function closeModal() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─────────────────────────────────────────────
+//  SEARCH + AUTOCOMPLETE
+// ─────────────────────────────────────────────
+const searchInput  = document.getElementById('searchInput');
+const ac           = document.getElementById('autocomplete');
+const srPanel      = document.getElementById('search-result');
+const cardsSection = document.getElementById('cards-section');
+
+let acSelected = -1;
+let acItems    = [];
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) {
+    ac.classList.remove('open');
+    showCards();
+    return;
+  }
+  const matches = fnIndex.filter(f =>
+    f.name.toLowerCase().includes(q) ||
+    f.brief.toLowerCase().includes(q)
+  );
+  renderAC(matches, q);
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (!ac.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') { acSelected = Math.min(acSelected + 1, acItems.length - 1); highlightAC(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { acSelected = Math.max(acSelected - 1, 0); highlightAC(); e.preventDefault(); }
+  else if (e.key === 'Enter') {
+    if (acSelected >= 0 && acItems[acSelected]) selectFn(acItems[acSelected]);
+    e.preventDefault();
+  }
+  else if (e.key === 'Escape') { ac.classList.remove('open'); }
+});
+
+function renderAC(matches, q) {
+  acItems = matches.slice(0, 8);
+  acSelected = -1;
+  if (!acItems.length) { ac.classList.remove('open'); return; }
+  ac.innerHTML = acItems.map((f, i) => {
+    const hi = f.name.replace(new RegExp(`(${q})`, 'gi'), '<span class="ac-match">$1</span>');
+    return `<div class="ac-item" data-i="${i}">
+      ${hi}()
+      <span class="ac-group">${f.group}</span>
+    </div>`;
+  }).join('');
+  ac.classList.add('open');
+  ac.querySelectorAll('.ac-item').forEach((el, i) => {
+    el.addEventListener('click', () => selectFn(acItems[i]));
+  });
+}
+
+function highlightAC() {
+  ac.querySelectorAll('.ac-item').forEach((el, i) => {
+    el.classList.toggle('selected', i === acSelected);
+  });
+}
+
+function selectFn(fn) {
+  searchInput.value = fn.name;
+  ac.classList.remove('open');
+  showSearchResult(fn);
+}
+
+function showSearchResult(fn) {
+  cardsSection.classList.add('hidden');
+  srPanel.classList.add('visible');
+  srPanel.innerHTML = `
+    <div class="section-label"><h2>검색 결과</h2></div>
+    <div class="sr-card">
+      <div class="sr-header">
+        <div class="sr-fn-sig">${fn.sig}</div>
+        <div class="sr-group">${fn.group}</div>
+      </div>
+      <div class="sr-body">${buildDetail(fn)}</div>
+    </div>
+  `;
+  srPanel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showCards() {
+  srPanel.classList.remove('visible');
+  srPanel.innerHTML = '';
+  cardsSection.classList.remove('hidden');
+}
+
+// close AC on outside click
+document.addEventListener('click', e => {
+  if (!document.getElementById('searchBox').contains(e.target)) {
+    ac.classList.remove('open');
+  }
+});
+
+// clear search on empty
+searchInput.addEventListener('keyup', e => {
+  if (e.key === 'Escape' || searchInput.value === '') showCards();
+});
+</script>
+</body>
+</html>
