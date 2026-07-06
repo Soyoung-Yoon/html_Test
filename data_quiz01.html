@@ -7,8 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script>let existingWorkbook = null;</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL      = 'https://aeouoteohvpnuywqzaka.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_DgHzBwXn4xJfR5m_imkg3w_hiI7Nvj8';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -47,20 +51,15 @@
   }
   .body { padding: 28px 28px 28px; }
 
-  /* ── 이전 파일 불러오기 ── */
-  .load-section {
-    background: #fffbf0; border: 1.5px dashed #f5c842;
-    border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  /* ── 제출 상태 메시지 ── */
+  .submit-msg {
+    display: none; text-align: center; font-size: 13px;
+    font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-top: 10px;
   }
-  .load-section .load-label { font-size: 12.5px; font-weight: 600; color: #a07800; white-space: nowrap; }
-  .load-file-btn {
-    padding: 7px 14px; background: #fff; border: 1.5px solid #f5c842;
-    border-radius: 8px; font-size: 12.5px; font-weight: 600; color: #7a5c00;
-    cursor: pointer; font-family: inherit; transition: background 0.15s;
-  }
-  .load-file-btn:hover { background: #fff9e6; }
-  .load-status { font-size: 12px; color: #7a8030; flex: 1; }
+  .submit-msg.show { display: block; }
+  .submit-msg.sending { background: #f0f4ff; color: #4a57c4; }
+  .submit-msg.success { background: #eafaf1; color: #1f9d55; }
+  .submit-msg.error   { background: #fdeced; color: #d64545; }
 
   /* ── 제출자 입력 ── */
   .submitter-section {
@@ -257,14 +256,6 @@
   </div>
   <div class="body">
 
-    <!-- 이전 파일 불러오기 -->
-    <div class="load-section">
-      <span class="load-label">📂 이전 결과 파일</span>
-      <input type="file" id="loadFileInput" accept=".xlsx" style="display:none" onchange="loadExistingFile(this)">
-      <button class="load-file-btn" onclick="document.getElementById('loadFileInput').click()">파일 선택</button>
-      <span class="load-status" id="loadStatus">처음 제출이라면 선택하지 않아도 됩니다.</span>
-    </div>
-
     <!-- 제출자 입력 -->
     <div class="submitter-section">
       <div class="field">
@@ -440,8 +431,9 @@
 
     <!-- 제출 -->
     <div class="submit-section" id="submitSection">
-      <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">📥 답안 제출 및 엑셀 저장</button>
+      <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">📤 답안 제출</button>
       <p class="submit-notice">3문제를 모두 풀면 제출 버튼이 활성화됩니다.</p>
+      <div class="submit-msg" id="submitMsg"></div>
     </div>
     <button class="retry-all-btn" id="retryAllBtn" onclick="retryAll()">↺ 전체 다시 풀기</button>
 
@@ -449,23 +441,22 @@
 </div>
 
 <script>
-  const QUIZ_ID  = '퀴즈01';
-  const QUIZZES  = [
-    { id: 1, desc: 'aX+b 선형변환 시 변하지 않는 통계량', correctAnswer: '①왜도',
+  const QUIZ_ID = '퀴즈01';
+  const QUIZZES = [
+    { id: 1, desc: 'aX+b 선형변환 시 변하지 않는 통계량',
       labels: { '1':'①왜도', '2':'②표준편차', '3':'③평균', '4':'④중앙값' },
       correctNum: '1', wrongMsg: '오답입니다. 정답은 ①번 왜도(Skewness)입니다.' },
-    { id: 2, desc: 'ρ(X,Y)=0.5일 때 올바른 설명', correctAnswer: '④X+0.3과 Y+0.2',
+    { id: 2, desc: 'ρ(X,Y)=0.5일 때 올바른 설명',
       labels: { '1':'①−X와 Y의 ρ=0.5', '2':'②X+0.1과 Y의 ρ=0.6', '3':'③X와 2Y의 ρ=1', '4':'④X+0.3과 Y+0.2의 ρ=0.5' },
       correctNum: '4', wrongMsg: '오답입니다. 정답은 ④번입니다.' },
-    { id: 3, desc: 'ρ(X,Y)=0.2일 때 ρ(−2X+3, Y−1)',  correctAnswer: '①−0.2',
+    { id: 3, desc: 'ρ(X,Y)=0.2일 때 ρ(−2X+3, Y−1)',
       labels: { '1':'①−0.2', '2':'②0.2', '3':'③−0.4', '4':'④0.4' },
       correctNum: '1', wrongMsg: '오답입니다. 정답은 ①번 −0.2입니다.' },
   ];
 
-  // 각 문제별 상태: { choice: null|'1'~'4', correct: null|bool }
   const state = { 1: { choice: null, correct: null }, 2: { choice: null, correct: null }, 3: { choice: null, correct: null } };
 
-  // ── 초기화: 정답 data-correct 세팅 ─────────────────
+  // ── 초기화 ────────────────────────────────────────
   QUIZZES.forEach(q => {
     document.querySelectorAll(`#choices-${q.id} .choice`).forEach(el => {
       el.setAttribute('data-correct', el.getAttribute('data-choice') === q.correctNum ? 'true' : 'false');
@@ -473,95 +464,60 @@
     });
   });
 
-  // ── 이전 파일 불러오기 ─────────────────────────────
-  function loadExistingFile(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        existingWorkbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-        const sheets = existingWorkbook.SheetNames.join(', ');
-        document.getElementById('loadStatus').textContent = `✅ 불러옴: ${file.name}  |  기존 시트: ${sheets}`;
-      } catch { alert('엑셀 파일을 읽을 수 없습니다.'); existingWorkbook = null; }
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
-  // ── 선택 처리 ──────────────────────────────────────
+  // ── 선택 처리 ─────────────────────────────────────
   function handleChoice(qid, choiceEl) {
     if (state[qid].choice !== null) return;
-    const chosen = choiceEl.getAttribute('data-choice');
+    const chosen    = choiceEl.getAttribute('data-choice');
     const isCorrect = choiceEl.getAttribute('data-correct') === 'true';
-    state[qid].choice = chosen;
+    state[qid].choice  = chosen;
     state[qid].correct = isCorrect;
 
-    // 선지 색상
     document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => {
       c.classList.add('disabled');
       if (c.getAttribute('data-correct') === 'true') c.classList.add('correct');
       else if (c === choiceEl) c.classList.add('wrong');
     });
 
-    // 결과 배너
     const banner = document.getElementById(`resultBanner-${qid}`);
     const q = QUIZZES[qid - 1];
     banner.classList.add('show');
-    if (isCorrect) {
-      banner.classList.add('correct-banner');
-      banner.innerHTML = '✅ 정답입니다!';
-    } else {
-      banner.classList.add('wrong-banner');
-      banner.innerHTML = `❌ ${q.wrongMsg}`;
-    }
+    if (isCorrect) { banner.classList.add('correct-banner'); banner.innerHTML = '✅ 정답입니다!'; }
+    else           { banner.classList.add('wrong-banner');   banner.innerHTML = `❌ ${q.wrongMsg}`; }
 
     document.getElementById(`explanation-${qid}`).classList.add('show');
     document.getElementById(`retryBtn-${qid}`).classList.add('show');
-
     updateProgress();
     checkAllAnswered();
   }
 
-  // ── 진행 상태 업데이트 ────────────────────────────
+  // ── 진행 상태 ─────────────────────────────────────
   function updateProgress() {
     QUIZZES.forEach((q, i) => {
       const dot = document.getElementById(`dot-${q.id}`);
       if (state[q.id].choice !== null) {
-        dot.classList.remove('active');
-        dot.classList.add('done');
-        if (i + 1 < QUIZZES.length && state[QUIZZES[i + 1].id].choice === null) {
-          document.getElementById(`dot-${QUIZZES[i + 1].id}`).classList.add('active');
-        }
+        dot.classList.remove('active'); dot.classList.add('done');
+        if (i + 1 < QUIZZES.length && state[QUIZZES[i+1].id].choice === null)
+          document.getElementById(`dot-${QUIZZES[i+1].id}`).classList.add('active');
       }
     });
   }
 
-  // ── 모두 답했는지 확인 → 제출 버튼 표시 ─────────
   function checkAllAnswered() {
     const allDone = QUIZZES.every(q => state[q.id].choice !== null);
-    const section = document.getElementById('submitSection');
-    if (allDone) section.classList.add('show');
-    else section.classList.remove('show');
+    document.getElementById('submitSection').classList.toggle('show', allDone);
   }
 
   // ── 문제별 다시 풀기 ──────────────────────────────
   function retryQuestion(qid) {
-    state[qid].choice = null;
-    state[qid].correct = null;
-
-    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => c.classList.remove('disabled', 'correct', 'wrong'));
+    state[qid].choice = state[qid].correct = null;
+    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => c.classList.remove('disabled','correct','wrong'));
     const banner = document.getElementById(`resultBanner-${qid}`);
-    banner.classList.remove('show', 'correct-banner', 'wrong-banner');
-    banner.innerHTML = '';
+    banner.classList.remove('show','correct-banner','wrong-banner'); banner.innerHTML = '';
     document.getElementById(`explanation-${qid}`).classList.remove('show');
     document.getElementById(`retryBtn-${qid}`).classList.remove('show');
-
-    // 진행 점 초기화
     const dot = document.getElementById(`dot-${qid}`);
-    dot.classList.remove('done', 'active');
-    const allDone = QUIZZES.every(q => state[q.id].choice !== null);
-    if (!allDone) dot.classList.add('active');
-
+    dot.classList.remove('done','active');
+    if (!QUIZZES.every(q => state[q.id].choice !== null)) dot.classList.add('active');
     checkAllAnswered();
   }
 
@@ -572,55 +528,49 @@
     document.getElementById('submitSection').classList.remove('show');
     document.getElementById('retryAllBtn').classList.remove('show');
     const btn = document.getElementById('submitBtn');
-    btn.disabled = false;
-    btn.textContent = '📥 답안 제출 및 엑셀 저장';
+    btn.disabled = false; btn.textContent = '📤 답안 제출';
+    const msg = document.getElementById('submitMsg');
+    msg.classList.remove('show','sending','success','error'); msg.textContent = '';
   }
 
-  // ── 제출 ─────────────────────────────────────────
-  function submitAnswer() {
+  // ── 제출 (Supabase 저장) ──────────────────────────
+  async function submitAnswer() {
     const name  = document.getElementById('inputName').value.trim();
     const email = document.getElementById('inputEmail').value.trim();
     if (!name || !email) { alert('이름과 이메일을 모두 입력해 주세요.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('올바른 이메일 형식을 입력해 주세요.'); return; }
 
-    const now     = new Date();
-    const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
-                       .replace(/\. /g, '-').replace('.', '');
-    const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const sheetName = `${QUIZ_ID}_${dateStr}`;
-
-    const wb = existingWorkbook ? existingWorkbook : XLSX.utils.book_new();
-
-    const HEADER = ['날짜', '시간', '이름', '이메일',
-      'Q1_선택', 'Q1_정오', 'Q2_선택', 'Q2_정오', 'Q3_선택', 'Q3_정오'];
-    const newRow = [dateStr, timeStr, name, email,
-      QUIZZES[0].labels[state[1].choice] || '-', state[1].correct ? '정답' : '오답',
-      QUIZZES[1].labels[state[2].choice] || '-', state[2].correct ? '정답' : '오답',
-      QUIZZES[2].labels[state[3].choice] || '-', state[3].correct ? '정답' : '오답',
-    ];
-
-    let ws;
-    if (wb.SheetNames.includes(sheetName)) {
-      ws = wb.Sheets[sheetName];
-      const existingData = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      existingData.push(newRow);
-      ws = XLSX.utils.aoa_to_sheet(existingData);
-    } else {
-      ws = XLSX.utils.aoa_to_sheet([HEADER, newRow]);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    }
-    ws['!cols'] = [
-      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 26 },
-      { wch: 22 }, { wch: 8 }, { wch: 22 }, { wch: 8 }, { wch: 10 }, { wch: 8 }
-    ];
-    wb.Sheets[sheetName] = ws;
-    XLSX.writeFile(wb, 'quiz_results.xlsx');
-    existingWorkbook = wb;
-
     const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = '✅ 제출 완료';
-    document.getElementById('retryAllBtn').classList.add('show');
+    const msg = document.getElementById('submitMsg');
+    btn.disabled = true; btn.textContent = '전송 중...';
+    msg.className = 'submit-msg show sending'; msg.textContent = '⏳ 저장 중입니다...';
+
+    const now     = new Date();
+    const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+
+    const { error } = await _supabase.from('daily_quiz_results').insert({
+      quiz_id:    QUIZ_ID,
+      quiz_date:  dateStr,
+      name,
+      email,
+      q1_choice:  QUIZZES[0].labels[state[1].choice] || '-',
+      q1_correct: state[1].correct,
+      q2_choice:  QUIZZES[1].labels[state[2].choice] || '-',
+      q2_correct: state[2].correct,
+      q3_choice:  QUIZZES[2].labels[state[3].choice] || '-',
+      q3_correct: state[3].correct,
+    });
+
+    if (error) {
+      btn.disabled = false; btn.textContent = '📤 답안 제출';
+      msg.className = 'submit-msg show error';
+      msg.textContent = `❌ 저장 실패: ${error.message}`;
+    } else {
+      btn.textContent = '✅ 제출 완료';
+      msg.className = 'submit-msg show success';
+      msg.textContent = '✅ 제출되었습니다! 수고하셨습니다.';
+      document.getElementById('retryAllBtn').classList.add('show');
+    }
   }
 </script>
 
