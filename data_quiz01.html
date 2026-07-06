@@ -19,7 +19,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 48px 16px;
+    padding: 48px 16px 80px;
   }
   .card {
     background: #ffffff;
@@ -38,153 +38,91 @@
     align-items: center;
     justify-content: space-between;
   }
-  .header .title {
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
-  }
+  .header .title { font-size: 17px; font-weight: 700; letter-spacing: 0.2px; }
   .header .badge {
     background: linear-gradient(120deg, #FFC24B, #F5A623);
-    color: #1E2761;
-    font-weight: 800;
-    font-size: 12.5px;
-    padding: 6px 14px;
-    border-radius: 999px;
+    color: #1E2761; font-weight: 800; font-size: 12.5px;
+    padding: 6px 14px; border-radius: 999px;
     box-shadow: 0 3px 10px rgba(245,166,35,0.4);
   }
-  .body {
-    padding: 30px 28px 28px;
-  }
+  .body { padding: 28px 28px 28px; }
 
-  /* 이전 파일 불러오기 */
+  /* ── 이전 파일 불러오기 ── */
   .load-section {
-    background: #fffbf0;
-    border: 1.5px dashed #f5c842;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    background: #fffbf0; border: 1.5px dashed #f5c842;
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
-  .load-section .load-label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #a07800;
-    white-space: nowrap;
-  }
+  .load-section .load-label { font-size: 12.5px; font-weight: 600; color: #a07800; white-space: nowrap; }
   .load-file-btn {
-    padding: 7px 14px;
-    background: #fff;
-    border: 1.5px solid #f5c842;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #7a5c00;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
+    padding: 7px 14px; background: #fff; border: 1.5px solid #f5c842;
+    border-radius: 8px; font-size: 12.5px; font-weight: 600; color: #7a5c00;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
   }
   .load-file-btn:hover { background: #fff9e6; }
-  .load-status {
-    font-size: 12px;
-    color: #7a8030;
-    flex: 1;
-  }
+  .load-status { font-size: 12px; color: #7a8030; flex: 1; }
 
-  /* 제출자 입력 영역 */
+  /* ── 제출자 입력 ── */
   .submitter-section {
-    background: #f8f9ff;
-    border: 1px solid #e0e4f5;
-    border-radius: 14px;
-    padding: 16px 18px;
-    margin-bottom: 24px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-    flex-wrap: wrap;
+    background: #f8f9ff; border: 1px solid #e0e4f5;
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 28px;
+    display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
   }
-  .submitter-section .field {
-    flex: 1;
-    min-width: 140px;
-  }
+  .submitter-section .field { flex: 1; min-width: 140px; }
   .submitter-section label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: #5a61a0;
-    margin-bottom: 5px;
-    letter-spacing: 0.2px;
+    display: block; font-size: 12px; font-weight: 600;
+    color: #5a61a0; margin-bottom: 5px; letter-spacing: 0.2px;
   }
   .submitter-section input {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1.5px solid #d0d5ec;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
-    color: #1E2761;
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s;
+    width: 100%; padding: 9px 12px; border: 1.5px solid #d0d5ec;
+    border-radius: 8px; font-size: 14px; font-family: inherit;
+    color: #1E2761; background: #fff; outline: none; transition: border-color 0.15s;
   }
-  .submitter-section input:focus {
-    border-color: #4a57c4;
-  }
+  .submitter-section input:focus { border-color: #4a57c4; }
   .submitter-section input::placeholder { color: #b0b5d0; }
 
-  /* 문제 */
+  /* ── 문제 블록 ── */
+  .question-block { margin-bottom: 0; }
+  .q-divider {
+    height: 1px; background: #ececf5; margin: 28px 0;
+    position: relative;
+  }
+  .q-divider::after {
+    content: ''; display: block; position: absolute;
+    left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #c8ccec;
+  }
+
+  .q-num-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #1E2761; color: #fff;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
   .question {
     font-family: 'Gowun Batang', serif;
-    font-size: 19px;
-    font-weight: 700;
-    color: #1E2761;
-    line-height: 1.65;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ececf5;
+    font-size: 18.5px; font-weight: 700; color: #1E2761;
+    line-height: 1.65; margin-bottom: 20px;
+    padding-bottom: 18px; border-bottom: 1px solid #ececf5;
   }
   .choices {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 22px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 18px;
   }
-  @media (max-width: 480px) {
-    .choices { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 480px) { .choices { grid-template-columns: 1fr; } }
   .choice {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    border: 2px solid #e4e8f5;
-    border-radius: 12px;
-    padding: 13px 15px;
-    background: #fafbff;
-    cursor: pointer;
-    font-size: 14.5px;
-    font-weight: 500;
-    color: #2b3266;
+    display: flex; align-items: center; gap: 11px;
+    border: 2px solid #e4e8f5; border-radius: 12px;
+    padding: 12px 14px; background: #fafbff; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: #2b3266;
     transition: border-color 0.15s, background 0.15s, transform 0.1s;
   }
-  .choice:hover:not(.disabled) {
-    border-color: #6b7bd6;
-    background: #f2f4ff;
-    transform: translateY(-1px);
-  }
+  .choice:hover:not(.disabled) { border-color: #6b7bd6; background: #f2f4ff; transform: translateY(-1px); }
   .choice .num {
-    flex: none;
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-    background: #1E2761;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: #1E2761; color: #fff; font-size: 12.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
   }
   .choice.correct { border-color: #2fa66d; background: #eafaf1; }
   .choice.correct .num { background: #2fa66d; }
@@ -193,196 +131,121 @@
   .choice.disabled { cursor: default; }
   .choice.disabled:not(.correct):not(.wrong) { opacity: 0.45; }
 
-  /* 결과 배너 */
+  /* ── 결과 배너 ── */
   .result-banner {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 15px;
-    padding: 13px 16px;
-    border-radius: 12px;
-    margin-bottom: 16px;
+    display: none; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 14.5px; padding: 12px 15px;
+    border-radius: 12px; margin-bottom: 14px;
   }
   .result-banner.show { display: flex; }
-  .result-banner.correct-banner { background: linear-gradient(90deg, #eafaf1, #f2fdf6); color: #1f9d55; }
-  .result-banner.wrong-banner { background: linear-gradient(90deg, #fdeced, #fef5f5); color: #d64545; }
+  .result-banner.correct-banner { background: linear-gradient(90deg,#eafaf1,#f2fdf6); color: #1f9d55; }
+  .result-banner.wrong-banner { background: linear-gradient(90deg,#fdeced,#fef5f5); color: #d64545; }
 
-  /* ───── 해설 영역 ───── */
-  .explanation {
-    display: none;
-    font-size: 13.5px;
-    line-height: 1.8;
-    color: #3c4368;
-  }
+  /* ── 해설 ── */
+  .explanation { display: none; font-size: 13.5px; line-height: 1.8; color: #3c4368; }
   .explanation.show { display: block; }
 
-  /* 핵심 개념 박스 */
   .exp-concept {
-    background: linear-gradient(135deg, #eef0ff 0%, #f5f0ff 100%);
-    border-left: 4px solid #4a57c4;
-    border-radius: 0 12px 12px 0;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    font-size: 13.5px;
-    color: #2b3266;
+    background: linear-gradient(135deg,#eef0ff 0%,#f5f0ff 100%);
+    border-left: 4px solid #4a57c4; border-radius: 0 12px 12px 0;
+    padding: 14px 16px; margin-bottom: 14px;
+    font-size: 13.5px; color: #2b3266;
   }
   .exp-concept .concept-title {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: #4a57c4;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    margin-bottom: 7px;
+    font-size: 11px; font-weight: 700; color: #4a57c4;
+    letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
   }
   .highlight { color: #d6455f; font-weight: 700; }
 
-  /* 오답 분석 */
   .exp-section-title {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: #7a80b0;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    margin: 18px 0 8px;
+    font-size: 11px; font-weight: 700; color: #7a80b0;
+    letter-spacing: 0.8px; text-transform: uppercase; margin: 16px 0 7px;
   }
-  .wrong-analysis {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
+  .wrong-analysis { display: flex; flex-direction: column; gap: 7px; margin-bottom: 4px; }
   .wrong-item {
-    display: grid;
-    grid-template-columns: 100px 1fr;
-    align-items: center;
-    gap: 0;
-    border: 1px solid #e4e8f5;
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: 13px;
+    display: grid; grid-template-columns: 110px 1fr;
+    align-items: stretch; border: 1px solid #e4e8f5;
+    border-radius: 10px; overflow: hidden; font-size: 13px;
   }
   .wrong-item .wi-label {
-    background: #f0f2fa;
-    padding: 10px 12px;
-    font-weight: 600;
-    color: #3c4480;
-    border-right: 1px solid #e4e8f5;
-    font-size: 12.5px;
+    background: #f0f2fa; padding: 10px 12px;
+    font-weight: 600; color: #3c4480; border-right: 1px solid #e4e8f5;
+    font-size: 12.5px; display: flex; align-items: center;
   }
   .wrong-item .wi-formula {
-    padding: 10px 14px;
-    color: #3c4368;
-    background: #fff;
-    font-family: 'Courier New', monospace;
-    font-size: 12.5px;
+    padding: 10px 14px; color: #3c4368; background: #fff;
+    font-family: 'Courier New', monospace; font-size: 12.5px;
   }
-  .wrong-item .wi-formula span {
-    display: block;
-    color: #7a80b0;
-    font-size: 11.5px;
-    margin-top: 2px;
-    font-family: inherit;
+  .wrong-item .wi-formula .wi-note {
+    display: block; color: #7a80b0; font-size: 11.5px;
+    margin-top: 3px; font-family: inherit;
   }
+  .wrong-item.correct-item { border-color: #2fa66d; }
+  .wrong-item.correct-item .wi-label { background: #eafaf1; color: #1a7a4a; border-right-color: #b8ead0; }
 
-  /* 통계량 분류 표 */
   .stat-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-    margin-top: 4px;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #e0e4f5;
+    width: 100%; border-collapse: collapse; font-size: 12.5px;
+    margin-top: 4px; border-radius: 10px; overflow: hidden; border: 1px solid #e0e4f5;
   }
-  .stat-table thead tr {
-    background: #1E2761;
-    color: #fff;
-  }
-  .stat-table thead th {
-    padding: 9px 12px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 11.5px;
-    letter-spacing: 0.3px;
-  }
+  .stat-table thead tr { background: #1E2761; color: #fff; }
+  .stat-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11.5px; }
   .stat-table tbody tr:nth-child(even) { background: #f8f9ff; }
   .stat-table tbody tr:nth-child(odd) { background: #fff; }
-  .stat-table td {
-    padding: 9px 12px;
-    border-bottom: 1px solid #ececf5;
-    vertical-align: top;
-    color: #3c4368;
-  }
-  .stat-table td:first-child {
-    font-weight: 700;
-    color: #2b3266;
-    white-space: nowrap;
-  }
-  .stat-table td .ex {
-    color: #8a90b8;
-    font-size: 11.5px;
-    margin-top: 2px;
-  }
+  .stat-table td { padding: 9px 12px; border-bottom: 1px solid #ececf5; vertical-align: top; color: #3c4368; }
+  .stat-table td:first-child { font-weight: 700; color: #2b3266; white-space: nowrap; }
+  .stat-table td .ex { color: #8a90b8; font-size: 11.5px; margin-top: 2px; }
   .stat-table .tag {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 999px;
-    margin-left: 4px;
-    vertical-align: middle;
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 2px 7px; border-radius: 999px; margin-left: 4px; vertical-align: middle;
   }
   .tag-both { background: #fdeced; color: #c0393d; }
   .tag-scale { background: #fff3e0; color: #c77000; }
   .tag-none { background: #eafaf1; color: #1f9d55; }
 
-  /* 제출 버튼 */
-  .submit-section {
-    display: none;
-    margin-top: 20px;
+  /* ── 다시 풀기 (문제별) ── */
+  .retry-q-btn {
+    display: none; margin-top: 12px; width: 100%;
+    background: #f0f2fa; color: #3c4480; border: 1px solid #d0d5ec;
+    border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
   }
+  .retry-q-btn.show { display: block; }
+  .retry-q-btn:hover { background: #e4e8f5; }
+
+  /* ── 제출 영역 ── */
+  .submit-section { display: none; margin-top: 28px; }
   .submit-section.show { display: block; }
   .submit-btn {
-    width: 100%;
-    background: linear-gradient(120deg, #2fa66d, #27935f);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
+    width: 100%; background: linear-gradient(120deg,#2fa66d,#27935f);
+    color: #fff; border: none; border-radius: 12px; padding: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
     box-shadow: 0 8px 18px rgba(47,166,109,0.3);
-    font-family: inherit;
-    transition: opacity 0.15s;
+    font-family: inherit; transition: opacity 0.15s;
   }
   .submit-btn:hover { opacity: 0.9; }
   .submit-btn:disabled { opacity: 0.5; cursor: default; }
-  .submit-notice {
-    font-size: 12px;
-    color: #9a9ec0;
-    text-align: center;
-    margin-top: 7px;
-  }
+  .submit-notice { font-size: 12px; color: #9a9ec0; text-align: center; margin-top: 7px; }
 
-  .retry-btn {
-    display: none;
-    margin-top: 10px;
-    width: 100%;
-    background: linear-gradient(120deg, #1E2761, #2c3480);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 18px rgba(30,39,97,0.3);
-    font-family: inherit;
+  .retry-all-btn {
+    display: none; margin-top: 10px; width: 100%;
+    background: linear-gradient(120deg,#1E2761,#2c3480); color: #fff;
+    border: none; border-radius: 12px; padding: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 18px rgba(30,39,97,0.3); font-family: inherit;
   }
-  .retry-btn.show { display: block; }
-  .retry-btn:hover { background: linear-gradient(120deg, #2c3480, #3d4699); }
+  .retry-all-btn.show { display: block; }
+  .retry-all-btn:hover { background: linear-gradient(120deg,#2c3480,#3d4699); }
+
+  /* 진행 상태 표시 */
+  .progress-bar {
+    display: flex; gap: 6px; margin-bottom: 22px;
+  }
+  .progress-dot {
+    flex: 1; height: 5px; border-radius: 999px;
+    background: #e4e8f5; transition: background 0.3s;
+  }
+  .progress-dot.done { background: #2fa66d; }
+  .progress-dot.active { background: #4a57c4; }
 </style>
 </head>
 <body>
@@ -414,142 +277,203 @@
       </div>
     </div>
 
-    <!-- 문제 -->
-    <div class="question">
-      기존의 확률변수 X를 aX + b (단, a &gt; 0)로 선형 변환(Linear Transformation)하였을 때,
-      그 값이 변하지 않는 통계량은?
+    <!-- 진행 상태 -->
+    <div class="progress-bar">
+      <div class="progress-dot active" id="dot-1"></div>
+      <div class="progress-dot" id="dot-2"></div>
+      <div class="progress-dot" id="dot-3"></div>
     </div>
 
-    <div class="choices" id="choices">
-      <div class="choice" data-choice="1" data-correct="true">
-        <span class="num">1</span> 왜도 (Skewness)
+    <!-- ══════════════════════════════════ 문제 1 ══ -->
+    <div class="question-block" id="block-1">
+      <div class="q-num-badge">문제 1 / 3</div>
+      <div class="question">
+        기존의 확률변수 X를 aX + b (단, a &gt; 0)로 선형 변환(Linear Transformation)하였을 때,
+        그 값이 변하지 않는 통계량은?
       </div>
-      <div class="choice" data-choice="2" data-correct="false">
-        <span class="num">2</span> 표준편차 (Standard Deviation)
+      <div class="choices" id="choices-1">
+        <div class="choice" data-choice="1" data-correct="false"><span class="num">1</span> 왜도 (Skewness)</div>
+        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> 표준편차 (Standard Deviation)</div>
+        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> 평균 (Mean)</div>
+        <div class="choice" data-choice="4" data-correct="false"><span class="num">4</span> 중앙값 (Median)</div>
       </div>
-      <div class="choice" data-choice="3" data-correct="false">
-        <span class="num">3</span> 평균 (Mean)
+      <div class="result-banner" id="resultBanner-1"></div>
+      <div class="explanation" id="explanation-1">
+        <div class="exp-concept">
+          <div class="concept-title">💡 핵심 개념</div>
+          <strong>왜도(Skewness)</strong>와 <strong>첨도(Kurtosis)</strong>는 분포의 <strong>'형태(Shape)'</strong>를 나타내는 통계량입니다.
+          데이터를 일정 비율로 늘리거나(a) 이동시켜도(b) 분포의 비대칭 구조는 유지됩니다.<br>
+          단, <span class="highlight">a &lt; 0이면 왜도의 부호가 반전</span>됩니다.
+          이 문제는 <span class="highlight">a &gt; 0</span> 조건이므로 왜도가 완전히 그대로 유지됩니다.
+        </div>
+        <div class="exp-section-title">📋 오답 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item">
+            <div class="wi-label">② 표준편차</div>
+            <div class="wi-formula">SD(aX + b) = |a| · SD(X)<span class="wi-note">척도(a)에 비례하여 변함 — b는 영향 없음</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">③ 평균</div>
+            <div class="wi-formula">E(aX + b) = a · E(X) + b<span class="wi-note">척도(a)와 이동(b) 모두 영향을 받음</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">④ 중앙값</div>
+            <div class="wi-formula">Median(aX + b) = a · Median(X) + b<span class="wi-note">척도(a)와 이동(b) 모두 영향을 받음</span></div>
+          </div>
+        </div>
+        <div class="exp-section-title">📊 통계량 분류 정리</div>
+        <table class="stat-table">
+          <thead><tr><th>분류</th><th>대표 통계량</th><th>이동(b) 영향</th><th>척도(a) 영향</th></tr></thead>
+          <tbody>
+            <tr><td>위치 통계량</td><td>평균, 중앙값, 최빈값, 사분위수<div class="ex">분포의 중심 위치</div></td><td><span class="tag tag-both">받음</span></td><td><span class="tag tag-both">받음</span></td></tr>
+            <tr><td>산포 통계량</td><td>표준편차, 분산, 범위, IQR<div class="ex">데이터의 퍼짐 정도</div></td><td><span class="tag tag-none">없음</span></td><td><span class="tag tag-both">받음</span></td></tr>
+            <tr><td>형태 통계량</td><td>왜도, 첨도<div class="ex">왜도: a&lt;0일 때 부호 반전 / 첨도: 항상 불변</div></td><td><span class="tag tag-none">없음</span></td><td><span class="tag tag-none">없음</span></td></tr>
+            <tr><td>관계 통계량</td><td>상관계수<div class="ex">두 척도계수 부호곱이 음수면 부호 반전</div></td><td><span class="tag tag-none">없음</span></td><td><span class="tag tag-scale">부호만</span></td></tr>
+          </tbody>
+        </table>
       </div>
-      <div class="choice" data-choice="4" data-correct="false">
-        <span class="num">4</span> 중앙값 (Median)
-      </div>
+      <button class="retry-q-btn" id="retryBtn-1" onclick="retryQuestion(1)">↺ 이 문제 다시 풀기</button>
     </div>
 
-    <div class="result-banner" id="resultBanner"></div>
+    <div class="q-divider"></div>
 
-    <!-- 해설 -->
-    <div class="explanation" id="explanation">
-
-      <div class="exp-concept">
-        <div class="concept-title">💡 핵심 개념</div>
-        <strong>왜도(Skewness)</strong>와 <strong>첨도(Kurtosis)</strong>는 분포의 <strong>'형태(Shape)'</strong>를 나타내는 통계량입니다.
-        데이터를 일정 비율로 늘리거나(a) 이동시켜도(b) 분포의 비대칭 구조는 유지됩니다.<br>
-        단, <span class="highlight">a &lt; 0이면 왜도의 부호가 반전</span>됩니다.
-        이 문제는 <span class="highlight">a &gt; 0</span> 조건이므로 왜도가 완전히 그대로 유지됩니다.
+    <!-- ══════════════════════════════════ 문제 2 ══ -->
+    <div class="question-block" id="block-2">
+      <div class="q-num-badge">문제 2 / 3</div>
+      <div class="question">
+        두 확률변수 X와 Y의 상관계수가 0.5일 때, 다음 중 올바른 설명은?
       </div>
-
-      <div class="exp-section-title">📋 오답 선지 분석</div>
-      <div class="wrong-analysis">
-        <div class="wrong-item">
-          <div class="wi-label">② 표준편차</div>
-          <div class="wi-formula">
-            SD(aX + b) = |a| · SD(X)
-            <span>척도(a)에 비례하여 변함 — b는 영향 없음</span>
-          </div>
+      <div class="choices" id="choices-2">
+        <div class="choice" data-choice="1" data-correct="false"><span class="num">1</span> −X와 Y의 상관계수는 0.5이다.</div>
+        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> X+0.1과 Y의 상관계수는 0.6이다.</div>
+        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> X와 2Y의 상관계수는 1이다.</div>
+        <div class="choice" data-choice="4" data-correct="true"><span class="num">4</span> X+0.3과 Y+0.2의 상관계수는 0.5이다.</div>
+      </div>
+      <div class="result-banner" id="resultBanner-2"></div>
+      <div class="explanation" id="explanation-2">
+        <div class="exp-concept">
+          <div class="concept-title">💡 핵심 공식</div>
+          선형변환된 두 변수의 상관계수:<br>
+          <strong>ρ(aX + b, cY + d) = sign(a · c) × ρ(X, Y)</strong><br><br>
+          <span class="highlight">이동항(b, d)은 상관계수에 전혀 영향을 주지 않습니다.</span><br>
+          척도항(a, c)은 <strong>크기는 보존</strong>하고, 두 척도의 <strong>부호곱이 음수이면 부호만 반전</strong>됩니다.
         </div>
-        <div class="wrong-item">
-          <div class="wi-label">③ 평균</div>
-          <div class="wi-formula">
-            E(aX + b) = a · E(X) + b
-            <span>척도(a)와 이동(b) 모두 영향을 받음</span>
+        <div class="exp-section-title">📋 각 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item">
+            <div class="wi-label">① 오답 (−0.5)</div>
+            <div class="wi-formula">ρ(−X, Y): a=−1, c=1 → sign(−1×1) = −1<span class="wi-note">부호곱이 음수 → 상관계수 부호 반전: 0.5 × (−1) = −0.5</span></div>
           </div>
-        </div>
-        <div class="wrong-item">
-          <div class="wi-label">④ 중앙값</div>
-          <div class="wi-formula">
-            Median(aX + b) = a · Median(X) + b
-            <span>척도(a)와 이동(b) 모두 영향을 받음</span>
+          <div class="wrong-item">
+            <div class="wi-label">② 오답 (0.5)</div>
+            <div class="wi-formula">ρ(X+0.1, Y): b=0.1은 이동항 → 상관계수 불변<span class="wi-note">이동은 영향 없음. 결과는 0.6이 아닌 그대로 0.5</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">③ 오답 (0.5)</div>
+            <div class="wi-formula">ρ(X, 2Y): a=1, c=2 → sign(1×2) = +1, 크기 보존<span class="wi-note">양의 척도 배는 크기에 영향 없음. 결과는 1이 아닌 그대로 0.5</span></div>
+          </div>
+          <div class="wrong-item correct-item">
+            <div class="wi-label">④ 정답 (0.5)</div>
+            <div class="wi-formula">ρ(X+0.3, Y+0.2): 이동항만 있음 (a=1, c=1)<span class="wi-note">이동은 영향 없음. sign(1×1)=+1 → ρ 그대로 0.5 ✅</span></div>
           </div>
         </div>
       </div>
-
-      <div class="exp-section-title">📊 통계량 분류 정리</div>
-      <table class="stat-table">
-        <thead>
-          <tr>
-            <th>분류</th>
-            <th>대표 통계량</th>
-            <th>이동(b) 영향</th>
-            <th>척도(a) 영향</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>위치 통계량</td>
-            <td>
-              평균, 중앙값, 최빈값, 사분위수
-              <div class="ex">분포의 중심 위치</div>
-            </td>
-            <td><span class="tag tag-both">받음</span></td>
-            <td><span class="tag tag-both">받음</span></td>
-          </tr>
-          <tr>
-            <td>산포 통계량</td>
-            <td>
-              표준편차, 분산, 범위, IQR
-              <div class="ex">데이터의 퍼짐 정도</div>
-            </td>
-            <td><span class="tag tag-none">없음</span></td>
-            <td><span class="tag tag-both">받음</span></td>
-          </tr>
-          <tr>
-            <td>형태 통계량</td>
-            <td>
-              왜도, 첨도
-              <div class="ex">왜도: a&lt;0일 때 부호 반전 / 첨도: 항상 불변</div>
-            </td>
-            <td><span class="tag tag-none">없음</span></td>
-            <td><span class="tag tag-none">없음</span></td>
-          </tr>
-          <tr>
-            <td>관계 통계량</td>
-            <td>
-              상관계수
-              <div class="ex">두 척도계수 부호곱이 음수면 부호 반전</div>
-            </td>
-            <td><span class="tag tag-none">없음</span></td>
-            <td><span class="tag tag-scale">부호만</span></td>
-          </tr>
-        </tbody>
-      </table>
+      <button class="retry-q-btn" id="retryBtn-2" onclick="retryQuestion(2)">↺ 이 문제 다시 풀기</button>
     </div>
 
-    <!-- 제출 버튼 -->
+    <div class="q-divider"></div>
+
+    <!-- ══════════════════════════════════ 문제 3 ══ -->
+    <div class="question-block" id="block-3">
+      <div class="q-num-badge">문제 3 / 3</div>
+      <div class="question">
+        X와 Y의 상관계수가 0.2일 때, −2X + 3과 Y − 1의 상관계수는?
+      </div>
+      <div class="choices" id="choices-3">
+        <div class="choice" data-choice="1" data-correct="true"><span class="num">1</span> −0.2</div>
+        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> 0.2</div>
+        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> −0.4</div>
+        <div class="choice" data-choice="4" data-correct="false"><span class="num">4</span> 0.4</div>
+      </div>
+      <div class="result-banner" id="resultBanner-3"></div>
+      <div class="explanation" id="explanation-3">
+        <div class="exp-concept">
+          <div class="concept-title">💡 풀이</div>
+          ρ(−2X + 3,  Y − 1)을 구하는 과정:<br><br>
+          <strong>① 이동항 제거:</strong> +3과 −1은 상수 이동 → 상관계수에 영향 없음<br>
+          <strong>② 척도항 확인:</strong> −2X의 척도 a = <span class="highlight">−2</span>,  Y의 척도 c = <span class="highlight">+1</span><br>
+          <strong>③ 부호곱 계산:</strong> sign(a · c) = sign(−2 × 1) = sign(−2) = <span class="highlight">−1</span><br>
+          <strong>④ 결과:</strong> ρ = (−1) × 0.2 = <span class="highlight">−0.2</span>
+        </div>
+        <div class="exp-section-title">📋 오답 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item correct-item">
+            <div class="wi-label">① 정답 (−0.2)</div>
+            <div class="wi-formula">sign(−2 × 1) = −1, 크기 보존<span class="wi-note">−2는 음수 → 부호 반전, 절댓값 2는 크기에 영향 없음 ✅</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">② 오답 (0.2)</div>
+            <div class="wi-formula">부호 반전을 무시한 경우<span class="wi-note">a = −2임을 간과하여 그대로 0.2로 계산한 오류</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">③ 오답 (−0.4)</div>
+            <div class="wi-formula">|a| = 2를 크기에도 반영한 경우<span class="wi-note">상관계수는 −1과 1 사이로 스케일이 변하지 않음. 0.2 × 2 ≠ 적용 불가</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">④ 오답 (0.4)</div>
+            <div class="wi-formula">부호 반전 무시 + 크기 잘못 반영<span class="wi-note">두 가지 오류 동시 발생</span></div>
+          </div>
+        </div>
+        <div class="exp-section-title">📐 공식 정리</div>
+        <table class="stat-table">
+          <thead><tr><th>변환 형태</th><th>계산 결과</th><th>이유</th></tr></thead>
+          <tbody>
+            <tr><td>ρ(aX+b, cY+d)</td><td>sign(a·c) × ρ(X,Y)</td><td>이동 무관, 척도 부호만 반영</td></tr>
+            <tr><td>a &gt; 0, c &gt; 0</td><td>+ρ(X,Y)</td><td>부호 유지</td></tr>
+            <tr><td>a &lt; 0 또는 c &lt; 0 (한쪽)</td><td>−ρ(X,Y)</td><td>부호 반전</td></tr>
+            <tr><td>a &lt; 0, c &lt; 0 (양쪽)</td><td>+ρ(X,Y)</td><td>음×음=양, 부호 유지</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="retry-q-btn" id="retryBtn-3" onclick="retryQuestion(3)">↺ 이 문제 다시 풀기</button>
+    </div>
+
+    <!-- 제출 -->
     <div class="submit-section" id="submitSection">
       <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">📥 답안 제출 및 엑셀 저장</button>
-      <p class="submit-notice">이름과 이메일을 입력하면 제출 결과가 엑셀 파일로 저장됩니다.</p>
+      <p class="submit-notice">3문제를 모두 풀면 제출 버튼이 활성화됩니다.</p>
     </div>
+    <button class="retry-all-btn" id="retryAllBtn" onclick="retryAll()">↺ 전체 다시 풀기</button>
 
-    <button class="retry-btn" id="retryBtn">다시 풀기</button>
   </div>
 </div>
 
 <script>
-  // 퀴즈 정보
-  const QUIZ_ID   = '퀴즈01';
-  const QUIZ_DESC = 'aX+b 선형변환 시 변하지 않는 통계량';
-  const CHOICE_LABELS = { '1': '①왜도', '2': '②표준편차', '3': '③평균', '4': '④중앙값' };
+  const QUIZ_ID  = '퀴즈01';
+  const QUIZZES  = [
+    { id: 1, desc: 'aX+b 선형변환 시 변하지 않는 통계량', correctAnswer: '①왜도',
+      labels: { '1':'①왜도', '2':'②표준편차', '3':'③평균', '4':'④중앙값' },
+      correctNum: '1', wrongMsg: '오답입니다. 정답은 ①번 왜도(Skewness)입니다.' },
+    { id: 2, desc: 'ρ(X,Y)=0.5일 때 올바른 설명', correctAnswer: '④X+0.3과 Y+0.2',
+      labels: { '1':'①−X와 Y의 ρ=0.5', '2':'②X+0.1과 Y의 ρ=0.6', '3':'③X와 2Y의 ρ=1', '4':'④X+0.3과 Y+0.2의 ρ=0.5' },
+      correctNum: '4', wrongMsg: '오답입니다. 정답은 ④번입니다.' },
+    { id: 3, desc: 'ρ(X,Y)=0.2일 때 ρ(−2X+3, Y−1)',  correctAnswer: '①−0.2',
+      labels: { '1':'①−0.2', '2':'②0.2', '3':'③−0.4', '4':'④0.4' },
+      correctNum: '1', wrongMsg: '오답입니다. 정답은 ①번 −0.2입니다.' },
+  ];
 
-  const choices      = document.querySelectorAll('.choice');
-  const resultBanner = document.getElementById('resultBanner');
-  const explanation  = document.getElementById('explanation');
-  const retryBtn     = document.getElementById('retryBtn');
-  const submitSection = document.getElementById('submitSection');
-  let answered = false;
-  let selectedChoice = null;
-  let isCorrectAnswer = false;
+  // 각 문제별 상태: { choice: null|'1'~'4', correct: null|bool }
+  const state = { 1: { choice: null, correct: null }, 2: { choice: null, correct: null }, 3: { choice: null, correct: null } };
 
-  // ── 이전 파일 불러오기 ──────────────────────────────
+  // ── 초기화: 정답 data-correct 세팅 ─────────────────
+  QUIZZES.forEach(q => {
+    document.querySelectorAll(`#choices-${q.id} .choice`).forEach(el => {
+      el.setAttribute('data-correct', el.getAttribute('data-choice') === q.correctNum ? 'true' : 'false');
+      el.addEventListener('click', () => handleChoice(q.id, el));
+    });
+  });
+
+  // ── 이전 파일 불러오기 ─────────────────────────────
   function loadExistingFile(input) {
     const file = input.files[0];
     if (!file) return;
@@ -558,66 +482,104 @@
       try {
         existingWorkbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
         const sheets = existingWorkbook.SheetNames.join(', ');
-        document.getElementById('loadStatus').textContent =
-          `✅ 불러옴: ${file.name}  |  기존 시트: ${sheets}`;
-      } catch {
-        alert('엑셀 파일을 읽을 수 없습니다.');
-        existingWorkbook = null;
-      }
+        document.getElementById('loadStatus').textContent = `✅ 불러옴: ${file.name}  |  기존 시트: ${sheets}`;
+      } catch { alert('엑셀 파일을 읽을 수 없습니다.'); existingWorkbook = null; }
     };
     reader.readAsArrayBuffer(file);
   }
 
-  // ── 퀴즈 선택 ───────────────────────────────────────
-  choices.forEach(choice => {
-    choice.addEventListener('click', () => {
-      if (answered) return;
-      answered = true;
-      selectedChoice = choice.getAttribute('data-choice');
-      isCorrectAnswer = choice.getAttribute('data-correct') === 'true';
+  // ── 선택 처리 ──────────────────────────────────────
+  function handleChoice(qid, choiceEl) {
+    if (state[qid].choice !== null) return;
+    const chosen = choiceEl.getAttribute('data-choice');
+    const isCorrect = choiceEl.getAttribute('data-correct') === 'true';
+    state[qid].choice = chosen;
+    state[qid].correct = isCorrect;
 
-      choices.forEach(c => {
-        c.classList.add('disabled');
-        if (c.getAttribute('data-correct') === 'true') c.classList.add('correct');
-        else if (c === choice) c.classList.add('wrong');
-      });
-
-      resultBanner.classList.add('show');
-      if (isCorrectAnswer) {
-        resultBanner.classList.add('correct-banner');
-        resultBanner.innerHTML = '✅ 정답입니다!';
-      } else {
-        resultBanner.classList.add('wrong-banner');
-        resultBanner.innerHTML = '❌ 오답입니다. 정답은 ①번 왜도(Skewness)입니다.';
-      }
-
-      explanation.classList.add('show');
-      submitSection.classList.add('show');
-      retryBtn.classList.add('show');
+    // 선지 색상
+    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => {
+      c.classList.add('disabled');
+      if (c.getAttribute('data-correct') === 'true') c.classList.add('correct');
+      else if (c === choiceEl) c.classList.add('wrong');
     });
-  });
 
-  // ── 다시 풀기 ────────────────────────────────────────
-  retryBtn.addEventListener('click', () => {
-    answered = false;
-    selectedChoice = null;
-    isCorrectAnswer = false;
-    choices.forEach(c => c.classList.remove('disabled', 'correct', 'wrong'));
-    resultBanner.classList.remove('show', 'correct-banner', 'wrong-banner');
-    resultBanner.innerHTML = '';
-    explanation.classList.remove('show');
-    submitSection.classList.remove('show');
-    retryBtn.classList.remove('show');
+    // 결과 배너
+    const banner = document.getElementById(`resultBanner-${qid}`);
+    const q = QUIZZES[qid - 1];
+    banner.classList.add('show');
+    if (isCorrect) {
+      banner.classList.add('correct-banner');
+      banner.innerHTML = '✅ 정답입니다!';
+    } else {
+      banner.classList.add('wrong-banner');
+      banner.innerHTML = `❌ ${q.wrongMsg}`;
+    }
+
+    document.getElementById(`explanation-${qid}`).classList.add('show');
+    document.getElementById(`retryBtn-${qid}`).classList.add('show');
+
+    updateProgress();
+    checkAllAnswered();
+  }
+
+  // ── 진행 상태 업데이트 ────────────────────────────
+  function updateProgress() {
+    QUIZZES.forEach((q, i) => {
+      const dot = document.getElementById(`dot-${q.id}`);
+      if (state[q.id].choice !== null) {
+        dot.classList.remove('active');
+        dot.classList.add('done');
+        if (i + 1 < QUIZZES.length && state[QUIZZES[i + 1].id].choice === null) {
+          document.getElementById(`dot-${QUIZZES[i + 1].id}`).classList.add('active');
+        }
+      }
+    });
+  }
+
+  // ── 모두 답했는지 확인 → 제출 버튼 표시 ─────────
+  function checkAllAnswered() {
+    const allDone = QUIZZES.every(q => state[q.id].choice !== null);
+    const section = document.getElementById('submitSection');
+    if (allDone) section.classList.add('show');
+    else section.classList.remove('show');
+  }
+
+  // ── 문제별 다시 풀기 ──────────────────────────────
+  function retryQuestion(qid) {
+    state[qid].choice = null;
+    state[qid].correct = null;
+
+    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => c.classList.remove('disabled', 'correct', 'wrong'));
+    const banner = document.getElementById(`resultBanner-${qid}`);
+    banner.classList.remove('show', 'correct-banner', 'wrong-banner');
+    banner.innerHTML = '';
+    document.getElementById(`explanation-${qid}`).classList.remove('show');
+    document.getElementById(`retryBtn-${qid}`).classList.remove('show');
+
+    // 진행 점 초기화
+    const dot = document.getElementById(`dot-${qid}`);
+    dot.classList.remove('done', 'active');
+    const allDone = QUIZZES.every(q => state[q.id].choice !== null);
+    if (!allDone) dot.classList.add('active');
+
+    checkAllAnswered();
+  }
+
+  // ── 전체 다시 풀기 ────────────────────────────────
+  function retryAll() {
+    QUIZZES.forEach(q => retryQuestion(q.id));
+    document.getElementById('dot-1').classList.add('active');
+    document.getElementById('submitSection').classList.remove('show');
+    document.getElementById('retryAllBtn').classList.remove('show');
     const btn = document.getElementById('submitBtn');
     btn.disabled = false;
     btn.textContent = '📥 답안 제출 및 엑셀 저장';
-  });
+  }
 
-  // ── 제출 ─────────────────────────────────────────────
+  // ── 제출 ─────────────────────────────────────────
   function submitAnswer() {
     const name  = document.getElementById('inputName').value.trim();
     const email = document.getElementById('inputEmail').value.trim();
-
     if (!name || !email) { alert('이름과 이메일을 모두 입력해 주세요.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('올바른 이메일 형식을 입력해 주세요.'); return; }
 
@@ -625,21 +587,21 @@
     const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
                        .replace(/\. /g, '-').replace('.', '');
     const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    // 시트 이름: "퀴즈01_2026-07-06"
     const sheetName = `${QUIZ_ID}_${dateStr}`;
 
-    // 워크북 준비 (기존 파일 있으면 재사용, 없으면 새로 생성)
     const wb = existingWorkbook ? existingWorkbook : XLSX.utils.book_new();
 
-    // 해당 시트가 이미 있으면 기존 데이터에 행 추가, 없으면 새 시트 생성
-    let ws;
-    const HEADER = ['날짜', '시간', '이름', '이메일', '문제', '선택한 답', '정답 여부'];
-    const newRow  = [dateStr, timeStr, name, email, QUIZ_DESC, CHOICE_LABELS[selectedChoice] || selectedChoice, isCorrectAnswer ? '정답' : '오답'];
+    const HEADER = ['날짜', '시간', '이름', '이메일',
+      'Q1_선택', 'Q1_정오', 'Q2_선택', 'Q2_정오', 'Q3_선택', 'Q3_정오'];
+    const newRow = [dateStr, timeStr, name, email,
+      QUIZZES[0].labels[state[1].choice] || '-', state[1].correct ? '정답' : '오답',
+      QUIZZES[1].labels[state[2].choice] || '-', state[2].correct ? '정답' : '오답',
+      QUIZZES[2].labels[state[3].choice] || '-', state[3].correct ? '정답' : '오답',
+    ];
 
+    let ws;
     if (wb.SheetNames.includes(sheetName)) {
       ws = wb.Sheets[sheetName];
-      // 기존 시트에서 다음 빈 행 찾아 추가
       const existingData = XLSX.utils.sheet_to_json(ws, { header: 1 });
       existingData.push(newRow);
       ws = XLSX.utils.aoa_to_sheet(existingData);
@@ -647,22 +609,18 @@
       ws = XLSX.utils.aoa_to_sheet([HEADER, newRow]);
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
     }
-
     ws['!cols'] = [
       { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 26 },
-      { wch: 30 }, { wch: 14 }, { wch: 10 }
+      { wch: 22 }, { wch: 8 }, { wch: 22 }, { wch: 8 }, { wch: 10 }, { wch: 8 }
     ];
-    // 수정된 시트 반영
     wb.Sheets[sheetName] = ws;
-
     XLSX.writeFile(wb, 'quiz_results.xlsx');
+    existingWorkbook = wb;
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.textContent = '✅ 제출 완료';
-
-    // 다운로드 후 existingWorkbook 갱신 (다음 사람도 같은 세션에서 쓸 경우 대비)
-    existingWorkbook = wb;
+    document.getElementById('retryAllBtn').classList.add('show');
   }
 </script>
 
