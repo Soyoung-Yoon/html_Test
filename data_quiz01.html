@@ -81,17 +81,8 @@
   .submitter-section input::placeholder { color: #b0b5d0; }
 
   /* ── 문제 블록 ── */
-  .question-block { margin-bottom: 0; }
-  .q-divider {
-    height: 1px; background: #ececf5; margin: 28px 0;
-    position: relative;
-  }
-  .q-divider::after {
-    content: ''; display: block; position: absolute;
-    left: 50%; top: 50%; transform: translate(-50%,-50%);
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #c8ccec;
-  }
+  .question-block { display: none; }
+  .question-block.active { display: block; }
 
   .q-num-badge {
     display: inline-flex; align-items: center; gap: 6px;
@@ -201,15 +192,29 @@
   .tag-scale { background: #fff3e0; color: #c77000; }
   .tag-none { background: #eafaf1; color: #1f9d55; }
 
-  /* ── 다시 풀기 (문제별) ── */
+  /* ── 문제별 버튼 영역 ── */
+  .q-actions {
+    display: flex; gap: 10px; margin-top: 14px;
+  }
   .retry-q-btn {
-    display: none; margin-top: 12px; width: 100%;
+    display: none; flex: 1;
     background: #f0f2fa; color: #3c4480; border: 1px solid #d0d5ec;
     border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600;
     cursor: pointer; font-family: inherit; transition: background 0.15s;
   }
   .retry-q-btn.show { display: block; }
   .retry-q-btn:hover { background: #e4e8f5; }
+
+  .next-q-btn {
+    display: none; flex: 2;
+    background: linear-gradient(120deg,#4a57c4,#6b7bd6);
+    color: #fff; border: none; border-radius: 10px; padding: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+    box-shadow: 0 6px 16px rgba(74,87,196,0.3);
+  }
+  .next-q-btn.show { display: block; }
+  .next-q-btn:hover { opacity: 0.9; }
 
   /* ── 제출 영역 ── */
   .submit-section { display: none; margin-top: 28px; }
@@ -268,12 +273,8 @@
       </div>
     </div>
 
-    <!-- 진행 상태 -->
-    <div class="progress-bar">
-      <div class="progress-dot active" id="dot-1"></div>
-      <div class="progress-dot" id="dot-2"></div>
-      <div class="progress-dot" id="dot-3"></div>
-    </div>
+    <!-- 진행 상태 (JS로 동적 생성) -->
+    <div class="progress-bar" id="progressBar"></div>
 
     <!-- ══════════════════════════════════ 문제 1 ══ -->
     <div class="question-block" id="block-1">
@@ -283,10 +284,10 @@
         그 값이 변하지 않는 통계량은?
       </div>
       <div class="choices" id="choices-1">
-        <div class="choice" data-choice="1" data-correct="false"><span class="num">1</span> 왜도 (Skewness)</div>
-        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> 표준편차 (Standard Deviation)</div>
-        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> 평균 (Mean)</div>
-        <div class="choice" data-choice="4" data-correct="false"><span class="num">4</span> 중앙값 (Median)</div>
+        <div class="choice" data-choice="1"><span class="num">1</span> 왜도 (Skewness)</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> 표준편차 (Standard Deviation)</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> 평균 (Mean)</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> 중앙값 (Median)</div>
       </div>
       <div class="result-banner" id="resultBanner-1"></div>
       <div class="explanation" id="explanation-1">
@@ -323,10 +324,11 @@
           </tbody>
         </table>
       </div>
-      <button class="retry-q-btn" id="retryBtn-1" onclick="retryQuestion(1)">↺ 이 문제 다시 풀기</button>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-1" onclick="retryQuestion(1)">↺ 다시 풀기</button>
+        <button class="next-q-btn"  id="nextBtn-1"  onclick="nextQuestion(1)">다음 문제 →</button>
+      </div>
     </div>
-
-    <div class="q-divider"></div>
 
     <!-- ══════════════════════════════════ 문제 2 ══ -->
     <div class="question-block" id="block-2">
@@ -335,10 +337,10 @@
         두 확률변수 X와 Y의 상관계수가 0.5일 때, 다음 중 올바른 설명은?
       </div>
       <div class="choices" id="choices-2">
-        <div class="choice" data-choice="1" data-correct="false"><span class="num">1</span> −X와 Y의 상관계수는 0.5이다.</div>
-        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> X+0.1과 Y의 상관계수는 0.6이다.</div>
-        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> X와 2Y의 상관계수는 1이다.</div>
-        <div class="choice" data-choice="4" data-correct="true"><span class="num">4</span> X+0.3과 Y+0.2의 상관계수는 0.5이다.</div>
+        <div class="choice" data-choice="1"><span class="num">1</span> −X와 Y의 상관계수는 0.5이다.</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> X+0.1과 Y의 상관계수는 0.6이다.</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> X와 2Y의 상관계수는 1이다.</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> X+0.3과 Y+0.2의 상관계수는 0.5이다.</div>
       </div>
       <div class="result-banner" id="resultBanner-2"></div>
       <div class="explanation" id="explanation-2">
@@ -369,10 +371,11 @@
           </div>
         </div>
       </div>
-      <button class="retry-q-btn" id="retryBtn-2" onclick="retryQuestion(2)">↺ 이 문제 다시 풀기</button>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-2" onclick="retryQuestion(2)">↺ 다시 풀기</button>
+        <button class="next-q-btn"  id="nextBtn-2"  onclick="nextQuestion(2)">다음 문제 →</button>
+      </div>
     </div>
-
-    <div class="q-divider"></div>
 
     <!-- ══════════════════════════════════ 문제 3 ══ -->
     <div class="question-block" id="block-3">
@@ -381,10 +384,10 @@
         X와 Y의 상관계수가 0.2일 때, −2X + 3과 Y − 1의 상관계수는?
       </div>
       <div class="choices" id="choices-3">
-        <div class="choice" data-choice="1" data-correct="true"><span class="num">1</span> −0.2</div>
-        <div class="choice" data-choice="2" data-correct="false"><span class="num">2</span> 0.2</div>
-        <div class="choice" data-choice="3" data-correct="false"><span class="num">3</span> −0.4</div>
-        <div class="choice" data-choice="4" data-correct="false"><span class="num">4</span> 0.4</div>
+        <div class="choice" data-choice="1"><span class="num">1</span> −0.2</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> 0.2</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> −0.4</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> 0.4</div>
       </div>
       <div class="result-banner" id="resultBanner-3"></div>
       <div class="explanation" id="explanation-3">
@@ -426,13 +429,15 @@
           </tbody>
         </table>
       </div>
-      <button class="retry-q-btn" id="retryBtn-3" onclick="retryQuestion(3)">↺ 이 문제 다시 풀기</button>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-3" onclick="retryQuestion(3)">↺ 다시 풀기</button>
+      </div>
     </div>
 
     <!-- 제출 -->
     <div class="submit-section" id="submitSection">
       <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">📤 답안 제출</button>
-      <p class="submit-notice">3문제를 모두 풀면 제출 버튼이 활성화됩니다.</p>
+      <p class="submit-notice">이름과 이메일을 입력 후 제출해 주세요.</p>
       <div class="submit-msg" id="submitMsg"></div>
     </div>
     <button class="retry-all-btn" id="retryAllBtn" onclick="retryAll()">↺ 전체 다시 풀기</button>
@@ -454,15 +459,29 @@
       correctNum: '1', wrongMsg: '오답입니다. 정답은 ①번 −0.2입니다.' },
   ];
 
-  const state = { 1: { choice: null, correct: null }, 2: { choice: null, correct: null }, 3: { choice: null, correct: null } };
-
   // ── 초기화 ────────────────────────────────────────
+  const state = {};
+  QUIZZES.forEach(q => { state[q.id] = { choice: null, correct: null }; });
+
+  // 진행 바 동적 생성
+  const progressBar = document.getElementById('progressBar');
+  QUIZZES.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 0 ? ' active' : '');
+    dot.id = `dot-${q.id}`;
+    progressBar.appendChild(dot);
+  });
+
+  // 정답 세팅 및 이벤트 등록
   QUIZZES.forEach(q => {
     document.querySelectorAll(`#choices-${q.id} .choice`).forEach(el => {
       el.setAttribute('data-correct', el.getAttribute('data-choice') === q.correctNum ? 'true' : 'false');
       el.addEventListener('click', () => handleChoice(q.id, el));
     });
   });
+
+  // 첫 번째 문제 활성화
+  document.getElementById('block-1').classList.add('active');
 
   // ── 선택 처리 ─────────────────────────────────────
   function handleChoice(qid, choiceEl) {
@@ -486,25 +505,34 @@
 
     document.getElementById(`explanation-${qid}`).classList.add('show');
     document.getElementById(`retryBtn-${qid}`).classList.add('show');
-    updateProgress();
-    checkAllAnswered();
+
+    // 마지막 문제면 제출 영역, 아니면 다음 문제 버튼
+    const isLast = qid === QUIZZES[QUIZZES.length - 1].id;
+    if (isLast) {
+      document.getElementById('submitSection').classList.add('show');
+    } else {
+      document.getElementById(`nextBtn-${qid}`).classList.add('show');
+    }
+
+    updateProgress(qid);
+  }
+
+  // ── 다음 문제로 이동 ──────────────────────────────
+  function nextQuestion(qid) {
+    document.getElementById(`block-${qid}`).classList.remove('active');
+    document.getElementById(`block-${qid + 1}`).classList.add('active');
+    document.getElementById(`block-${qid + 1}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ── 진행 상태 ─────────────────────────────────────
-  function updateProgress() {
-    QUIZZES.forEach((q, i) => {
-      const dot = document.getElementById(`dot-${q.id}`);
-      if (state[q.id].choice !== null) {
-        dot.classList.remove('active'); dot.classList.add('done');
-        if (i + 1 < QUIZZES.length && state[QUIZZES[i+1].id].choice === null)
-          document.getElementById(`dot-${QUIZZES[i+1].id}`).classList.add('active');
-      }
-    });
-  }
-
-  function checkAllAnswered() {
-    const allDone = QUIZZES.every(q => state[q.id].choice !== null);
-    document.getElementById('submitSection').classList.toggle('show', allDone);
+  function updateProgress(answeredQid) {
+    const dot = document.getElementById(`dot-${answeredQid}`);
+    dot.classList.remove('active');
+    dot.classList.add('done');
+    const idx = QUIZZES.findIndex(q => q.id === answeredQid);
+    if (idx + 1 < QUIZZES.length) {
+      document.getElementById(`dot-${QUIZZES[idx + 1].id}`).classList.add('active');
+    }
   }
 
   // ── 문제별 다시 풀기 ──────────────────────────────
@@ -515,22 +543,44 @@
     banner.classList.remove('show','correct-banner','wrong-banner'); banner.innerHTML = '';
     document.getElementById(`explanation-${qid}`).classList.remove('show');
     document.getElementById(`retryBtn-${qid}`).classList.remove('show');
+
+    const nextBtn = document.getElementById(`nextBtn-${qid}`);
+    if (nextBtn) nextBtn.classList.remove('show');
+
+    const isLast = qid === QUIZZES[QUIZZES.length - 1].id;
+    if (isLast) document.getElementById('submitSection').classList.remove('show');
+
     const dot = document.getElementById(`dot-${qid}`);
-    dot.classList.remove('done','active');
-    if (!QUIZZES.every(q => state[q.id].choice !== null)) dot.classList.add('active');
-    checkAllAnswered();
+    dot.classList.remove('done');
+    dot.classList.add('active');
   }
 
   // ── 전체 다시 풀기 ────────────────────────────────
   function retryAll() {
     QUIZZES.forEach(q => retryQuestion(q.id));
-    document.getElementById('dot-1').classList.add('active');
+
+    // 진행 바 초기화
+    QUIZZES.forEach((q, i) => {
+      const dot = document.getElementById(`dot-${q.id}`);
+      dot.classList.remove('done', 'active');
+      if (i === 0) dot.classList.add('active');
+    });
+
+    // 첫 문제만 보이도록
+    QUIZZES.forEach(q => {
+      const block = document.getElementById(`block-${q.id}`);
+      block.classList.remove('active');
+    });
+    document.getElementById('block-1').classList.add('active');
+
     document.getElementById('submitSection').classList.remove('show');
     document.getElementById('retryAllBtn').classList.remove('show');
     const btn = document.getElementById('submitBtn');
     btn.disabled = false; btn.textContent = '📤 답안 제출';
     const msg = document.getElementById('submitMsg');
     msg.classList.remove('show','sending','success','error'); msg.textContent = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ── 제출 (Supabase 저장) ──────────────────────────
@@ -545,21 +595,16 @@
     btn.disabled = true; btn.textContent = '전송 중...';
     msg.className = 'submit-msg show sending'; msg.textContent = '⏳ 저장 중입니다...';
 
-    const now     = new Date();
-    const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const dateStr = new Date().toISOString().slice(0, 10);
 
-    const { error } = await _supabase.from('daily_quiz_results').insert({
-      quiz_id:    QUIZ_ID,
-      quiz_date:  dateStr,
-      name,
-      email,
-      q1_choice:  QUIZZES[0].labels[state[1].choice] || '-',
-      q1_correct: state[1].correct,
-      q2_choice:  QUIZZES[1].labels[state[2].choice] || '-',
-      q2_correct: state[2].correct,
-      q3_choice:  QUIZZES[2].labels[state[3].choice] || '-',
-      q3_correct: state[3].correct,
+    const row = { quiz_id: QUIZ_ID, quiz_date: dateStr, name, email };
+    QUIZZES.forEach((q, i) => {
+      const n = i + 1;
+      row[`q${n}_choice`]  = q.labels[state[q.id].choice] || '-';
+      row[`q${n}_correct`] = state[q.id].correct;
     });
+
+    const { error } = await _supabase.from('daily_quiz_results').insert(row);
 
     if (error) {
       btn.disabled = false; btn.textContent = '📤 답안 제출';
