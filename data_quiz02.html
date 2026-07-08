@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매일 한 문제 - EduAtoZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL      = 'https://aeouoteohvpnuywqzaka.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_DgHzBwXn4xJfR5m_imkg3w_hiI7Nvj8';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Pretendard', "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f4f5fb;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 16px 80px;
+  }
+  .card {
+    background: #ffffff;
+    max-width: 720px;
+    width: 100%;
+    border-radius: 20px;
+    border: 1px solid #ececf5;
+    box-shadow: 0 12px 32px rgba(30,39,97,0.10);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(120deg, #1E2761 0%, #2c3480 55%, #3d4699 100%);
+    color: #fff;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header .title { font-size: 17px; font-weight: 700; letter-spacing: 0.2px; }
+  .header .badge {
+    background: linear-gradient(120deg, #FFC24B, #F5A623);
+    color: #1E2761; font-weight: 800; font-size: 12.5px;
+    padding: 6px 14px; border-radius: 999px;
+    box-shadow: 0 3px 10px rgba(245,166,35,0.4);
+  }
+  .body { padding: 28px 28px 28px; }
+
+  /* ── 제출 상태 메시지 ── */
+  .submit-msg {
+    display: none; text-align: center; font-size: 13px;
+    font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-top: 10px;
+  }
+  .submit-msg.show { display: block; }
+  .submit-msg.sending { background: #f0f4ff; color: #4a57c4; }
+  .submit-msg.success { background: #eafaf1; color: #1f9d55; }
+  .submit-msg.error   { background: #fdeced; color: #d64545; }
+
+  /* ── 제출자 입력 ── */
+  .submitter-section {
+    background: #f8f9ff; border: 1px solid #e0e4f5;
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 28px;
+    display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;
+  }
+  .submitter-section .field { flex: 1; min-width: 140px; }
+  .submitter-section label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #5a61a0; margin-bottom: 5px; letter-spacing: 0.2px;
+  }
+  .submitter-section input {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #d0d5ec;
+    border-radius: 8px; font-size: 14px; font-family: inherit;
+    color: #1E2761; background: #fff; outline: none; transition: border-color 0.15s;
+  }
+  .submitter-section input:focus { border-color: #4a57c4; }
+  .submitter-section input::placeholder { color: #b0b5d0; }
+
+  /* ── 문제 블록 ── */
+  .question-block { display: none; }
+  .question-block.active { display: block; }
+
+  .q-num-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #1E2761; color: #fff;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+  }
+  .question {
+    font-family: 'Gowun Batang', serif;
+    font-size: 18.5px; font-weight: 700; color: #1E2761;
+    line-height: 1.65; margin-bottom: 20px;
+    padding-bottom: 18px; border-bottom: 1px solid #ececf5;
+  }
+  .choices {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 18px;
+  }
+  @media (max-width: 480px) { .choices { grid-template-columns: 1fr; } }
+  .choice {
+    display: flex; align-items: center; gap: 11px;
+    border: 2px solid #e4e8f5; border-radius: 12px;
+    padding: 12px 14px; background: #fafbff; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: #2b3266;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .choice:hover:not(.disabled) { border-color: #6b7bd6; background: #f2f4ff; transform: translateY(-1px); }
+  .choice .num {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    background: #1E2761; color: #fff; font-size: 12.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .choice.correct { border-color: #2fa66d; background: #eafaf1; }
+  .choice.correct .num { background: #2fa66d; }
+  .choice.wrong { border-color: #e0555a; background: #fdeced; }
+  .choice.wrong .num { background: #e0555a; }
+  .choice.disabled { cursor: default; }
+  .choice.disabled:not(.correct):not(.wrong) { opacity: 0.45; }
+
+  /* ── 결과 배너 ── */
+  .result-banner {
+    display: none; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 14.5px; padding: 12px 15px;
+    border-radius: 12px; margin-bottom: 14px;
+  }
+  .result-banner.show { display: flex; }
+  .result-banner.correct-banner { background: linear-gradient(90deg,#eafaf1,#f2fdf6); color: #1f9d55; }
+  .result-banner.wrong-banner { background: linear-gradient(90deg,#fdeced,#fef5f5); color: #d64545; }
+
+  /* ── 해설 ── */
+  .explanation { display: none; font-size: 13.5px; line-height: 1.8; color: #3c4368; }
+  .explanation.show { display: block; }
+
+  .exp-concept {
+    background: linear-gradient(135deg,#eef0ff 0%,#f5f0ff 100%);
+    border-left: 4px solid #4a57c4; border-radius: 0 12px 12px 0;
+    padding: 14px 16px; margin-bottom: 14px;
+    font-size: 13.5px; color: #2b3266;
+  }
+  .exp-concept .concept-title {
+    font-size: 11px; font-weight: 700; color: #4a57c4;
+    letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .highlight { color: #d6455f; font-weight: 700; }
+
+  .exp-section-title {
+    font-size: 11px; font-weight: 700; color: #7a80b0;
+    letter-spacing: 0.8px; text-transform: uppercase; margin: 16px 0 7px;
+  }
+  .wrong-analysis { display: flex; flex-direction: column; gap: 7px; margin-bottom: 4px; }
+  .wrong-item {
+    display: grid; grid-template-columns: 110px 1fr;
+    align-items: stretch; border: 1px solid #e4e8f5;
+    border-radius: 10px; overflow: hidden; font-size: 13px;
+  }
+  .wrong-item .wi-label {
+    background: #f0f2fa; padding: 10px 12px;
+    font-weight: 600; color: #3c4480; border-right: 1px solid #e4e8f5;
+    font-size: 12.5px; display: flex; align-items: center;
+  }
+  .wrong-item .wi-formula {
+    padding: 10px 14px; color: #3c4368; background: #fff;
+    font-family: 'Courier New', monospace; font-size: 12.5px;
+  }
+  .wrong-item .wi-formula .wi-note {
+    display: block; color: #7a80b0; font-size: 11.5px;
+    margin-top: 3px; font-family: inherit;
+  }
+  .wrong-item.correct-item { border-color: #2fa66d; }
+  .wrong-item.correct-item .wi-label { background: #eafaf1; color: #1a7a4a; border-right-color: #b8ead0; }
+
+  .stat-table {
+    width: 100%; border-collapse: collapse; font-size: 12.5px;
+    margin-top: 4px; border-radius: 10px; overflow: hidden; border: 1px solid #e0e4f5;
+  }
+  .stat-table thead tr { background: #1E2761; color: #fff; }
+  .stat-table thead th { padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11.5px; }
+  .stat-table tbody tr:nth-child(even) { background: #f8f9ff; }
+  .stat-table tbody tr:nth-child(odd) { background: #fff; }
+  .stat-table td { padding: 9px 12px; border-bottom: 1px solid #ececf5; vertical-align: top; color: #3c4368; }
+  .stat-table td:first-child { font-weight: 700; color: #2b3266; white-space: nowrap; }
+  .stat-table td .ex { color: #8a90b8; font-size: 11.5px; margin-top: 2px; }
+  .stat-table .tag {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 2px 7px; border-radius: 999px; margin-left: 4px; vertical-align: middle;
+  }
+  .tag-both { background: #fdeced; color: #c0393d; }
+  .tag-scale { background: #fff3e0; color: #c77000; }
+  .tag-none { background: #eafaf1; color: #1f9d55; }
+
+  /* ── 문제별 버튼 영역 ── */
+  .q-actions {
+    display: flex; gap: 10px; margin-top: 14px;
+  }
+  .retry-q-btn {
+    display: none; flex: 1;
+    background: #f0f2fa; color: #3c4480; border: 1px solid #d0d5ec;
+    border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .retry-q-btn.show { display: block; }
+  .retry-q-btn:hover { background: #e4e8f5; }
+
+  .next-q-btn {
+    display: none; flex: 2;
+    background: linear-gradient(120deg,#4a57c4,#6b7bd6);
+    color: #fff; border: none; border-radius: 10px; padding: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity 0.15s;
+    box-shadow: 0 6px 16px rgba(74,87,196,0.3);
+  }
+  .next-q-btn.show { display: block; }
+  .next-q-btn:hover { opacity: 0.9; }
+
+  /* ── 제출 영역 ── */
+  .submit-section { display: none; margin-top: 28px; }
+  .submit-section.show { display: block; }
+  .submit-btn {
+    width: 100%; background: linear-gradient(120deg,#2fa66d,#27935f);
+    color: #fff; border: none; border-radius: 12px; padding: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 18px rgba(47,166,109,0.3);
+    font-family: inherit; transition: opacity 0.15s;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.5; cursor: default; }
+  .submit-notice { font-size: 12px; color: #9a9ec0; text-align: center; margin-top: 7px; }
+
+  .retry-all-btn {
+    display: none; margin-top: 10px; width: 100%;
+    background: linear-gradient(120deg,#1E2761,#2c3480); color: #fff;
+    border: none; border-radius: 12px; padding: 14px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 8px 18px rgba(30,39,97,0.3); font-family: inherit;
+  }
+  .retry-all-btn.show { display: block; }
+  .retry-all-btn:hover { background: linear-gradient(120deg,#2c3480,#3d4699); }
+
+  /* 진행 상태 표시 */
+  .progress-bar {
+    display: flex; gap: 6px; margin-bottom: 22px;
+  }
+  .progress-dot {
+    flex: 1; height: 5px; border-radius: 999px;
+    background: #e4e8f5; transition: background 0.3s;
+  }
+  .progress-dot.done { background: #2fa66d; }
+  .progress-dot.active { background: #4a57c4; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <span class="title">📌 매일 한 문제 · EduAtoZ</span>
+    <span class="badge">데이터마이닝</span>
+  </div>
+  <div class="body">
+
+    <!-- 제출자 입력 -->
+    <div class="submitter-section">
+      <div class="field">
+        <label for="inputName">이름</label>
+        <input type="text" id="inputName" placeholder="홍길동">
+      </div>
+      <div class="field">
+        <label for="inputEmail">이메일</label>
+        <input type="email" id="inputEmail" placeholder="example@email.com">
+      </div>
+    </div>
+
+    <!-- 진행 상태 (JS로 동적 생성) -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- ══════════════════════════════════ 문제 1 ══ -->
+    <div class="question-block" id="block-1">
+      <div class="q-num-badge">문제 1 / 3</div>
+      <div class="question">
+        의사결정나무(Decision Tree) 모델에서 분할 기준(Split Criterion)으로 사용되는 지니 지수(Gini Index)와
+        엔트로피 지수(Entropy Index)에 대한 계산 문제이다. 어떤 노드에 속한 두 클래스의 데이터 수가 각각
+        Y = 10, X = 0일 때, 이 노드의 지니 지수와 엔트로피 지수를 순서대로 바르게 나열한 것은?
+      </div>
+      <div class="choices" id="choices-1">
+        <div class="choice" data-choice="1"><span class="num">1</span> 1, 1</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> 1, 0</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> 0, 1</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> 0, 0</div>
+      </div>
+      <div class="result-banner" id="resultBanner-1"></div>
+      <div class="explanation" id="explanation-1">
+        <div class="exp-concept">
+          <div class="concept-title">💡 핵심 개념</div>
+          <strong>지니 지수</strong>와 <strong>엔트로피 지수</strong>는 모두 노드의 <strong>불순도(Impurity)</strong>를
+          측정하는 지표로, 한 노드가 하나의 클래스로만 이루어진 <strong>순수 노드(Pure Node)</strong>일 때
+          두 값 모두 <span class="highlight">최솟값인 0</span>이 됩니다.<br>
+          Y = 10, X = 0이라는 것은 두 클래스 중 X 클래스가 전혀 없는, Y로만 이루어진 완전한 순수 노드를 의미합니다.
+        </div>
+        <div class="exp-section-title">📋 오답 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item">
+            <div class="wi-label">① 오답 (1,1)</div>
+            <div class="wi-formula">두 지표의 최댓값과 혼동한 경우<span class="wi-note">두 클래스 비율이 각각 0.5로 균등할 때 불순도가 최대가 되며, 이때도 지니 지수는 1이 아닌 0.5입니다</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">② 오답 (1,0)</div>
+            <div class="wi-formula">Gini = 1 − Σpᵢ² = 1 − (1² + 0²) = 0<span class="wi-note">순수 노드의 지니 지수를 잘못 계산한 경우 (정답은 0)</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">③ 오답 (0,1)</div>
+            <div class="wi-formula">Entropy = −Σpᵢlog₂(pᵢ) = −(1·log₂1 + 0·log₂0) = 0<span class="wi-note">0·log₂0은 정의상 0으로 처리하므로 엔트로피도 0입니다</span></div>
+          </div>
+        </div>
+        <div class="exp-section-title">📊 불순도 지표 정리</div>
+        <table class="stat-table">
+          <thead><tr><th>구분</th><th>공식</th><th>순수 노드 (1,0)</th><th>균등 노드 (0.5,0.5)</th></tr></thead>
+          <tbody>
+            <tr><td>지니 지수</td><td>1 − Σpᵢ²<div class="ex">이진분류에서 0~0.5 범위</div></td><td><span class="tag tag-none">0 (최소)</span></td><td><span class="tag tag-both">0.5 (최대)</span></td></tr>
+            <tr><td>엔트로피 지수</td><td>−Σpᵢlog₂(pᵢ)<div class="ex">이진분류에서 0~1 범위</div></td><td><span class="tag tag-none">0 (최소)</span></td><td><span class="tag tag-both">1 (최대)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-1" onclick="retryQuestion(1)">↺ 다시 풀기</button>
+        <button class="next-q-btn"  id="nextBtn-1"  onclick="nextQuestion(1)">다음 문제 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ 문제 2 ══ -->
+    <div class="question-block" id="block-2">
+      <div class="q-num-badge">문제 2 / 3</div>
+      <div class="question">
+        다차원척도법(Multidimensional Scaling, MDS)에 대한 설명으로 가장 옳지 않은 것은?
+      </div>
+      <div class="choices" id="choices-2">
+        <div class="choice" data-choice="1"><span class="num">1</span> 개체들 간의 유사성(또는 비유사성) 정보를 이용하여 개체들을 저차원 공간상에 점으로 시각화하는 분석 기법이다.</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> 계량적 MDS는 구간척도나 비율척도와 같은 연속형 데이터에 적용하며, 개체 간의 실제 거리를 계산하여 공간상에 표현한다.</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> 비계량적 MDS는 개체 간 유사성이 순서척도로 측정된 경우에 사용하며, 순위 정보만을 보존하도록 배치한다.</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> 데이터 분석을 통해 개체들 간의 비유사성을 측정하고, 이를 기준으로 서로 유사한 개체들을 하나로 묶어 다수의 동질적인 그룹을 형성하는 것을 주된 목적으로 한다.</div>
+      </div>
+      <div class="result-banner" id="resultBanner-2"></div>
+      <div class="explanation" id="explanation-2">
+        <div class="exp-concept">
+          <div class="concept-title">💡 핵심 개념</div>
+          <strong>다차원척도법(MDS)</strong>의 목적은 개체 간의 비유사성(거리) 정보를 최대한 보존하면서
+          개체들을 저차원(2~3차원) 공간상의 <strong>'점(Coordinate)'</strong>으로 배치하여
+          전체적인 관계 구조를 시각적으로 파악하는 것입니다.<br>
+          <span class="highlight">개체들을 그룹으로 묶어 군집(Cluster)을 형성하는 것</span>은 MDS가 아니라
+          <strong>군집분석(Cluster Analysis)</strong>의 목적입니다.
+        </div>
+        <div class="exp-section-title">📋 각 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item">
+            <div class="wi-label">① 옳은 설명</div>
+            <div class="wi-formula">유사성 정보 → 저차원 공간의 점으로 시각화<span class="wi-note">MDS의 기본 정의에 해당</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">② 옳은 설명</div>
+            <div class="wi-formula">계량적 MDS: 연속형 데이터, 실제 거리(Euclidean 등) 사용<span class="wi-note">구간·비율척도에 적용되는 계량적 MDS의 정확한 설명</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">③ 옳은 설명</div>
+            <div class="wi-formula">비계량적 MDS: 순서척도, 순위 정보만 보존<span class="wi-note">서열척도로 측정된 유사성에 적용되는 비계량적 MDS의 정확한 설명</span></div>
+          </div>
+          <div class="wrong-item correct-item">
+            <div class="wi-label">④ 정답 (틀린 설명)</div>
+            <div class="wi-formula">동질적 그룹(Cluster) 형성이 목적 → 군집분석의 설명<span class="wi-note">MDS는 점으로 '배치'하여 관계 구조를 파악하는 것이 목적이며, 그룹으로 '묶는' 것은 군집분석의 역할 ✅</span></div>
+          </div>
+        </div>
+        <div class="exp-section-title">📊 MDS vs 군집분석 비교</div>
+        <table class="stat-table">
+          <thead><tr><th>구분</th><th>MDS</th><th>군집분석</th></tr></thead>
+          <tbody>
+            <tr><td>목적</td><td>개체 간 관계 구조를 저차원 공간에 시각화<div class="ex">점(좌표)으로 표현</div></td><td>유사한 개체를 그룹으로 묶음<div class="ex">군집(Cluster)으로 표현</div></td></tr>
+            <tr><td>결과물</td><td>좌표 공간상의 산점도</td><td>그룹 소속 정보(라벨)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-2" onclick="retryQuestion(2)">↺ 다시 풀기</button>
+        <button class="next-q-btn"  id="nextBtn-2"  onclick="nextQuestion(2)">다음 문제 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ 문제 3 ══ -->
+    <div class="question-block" id="block-3">
+      <div class="q-num-badge">문제 3 / 3</div>
+      <div class="question">
+        서포트 벡터 머신(Support Vector Machine, SVM)에 대한 설명으로 가장 옳지 않은 것은?
+      </div>
+      <div class="choices" id="choices-3">
+        <div class="choice" data-choice="1"><span class="num">1</span> 데이터들을 분리하는 여러 후보 평면 중, 두 클래스 간의 거리를 나타내는 마진을 최대화하는 방향으로 최적의 초평면을 찾아 학습한다.</div>
+        <div class="choice" data-choice="2"><span class="num">2</span> 결정 경계를 설정할 때 모든 데이터 포인트를 고려하는 것이 아니라, 결정 경계에 가장 가까이 위치한 일부 데이터 포인트인 '서포트 벡터'들 간의 거리만을 직접 계산하여 사용한다.</div>
+        <div class="choice" data-choice="3"><span class="num">3</span> 선형 분리가 불가능한 비선형 데이터의 경우, 커널 함수를 적용하여 원래의 고차원 데이터를 선형 분리가 용이한 저차원 공간으로 변환하여 문제를 해결한다.</div>
+        <div class="choice" data-choice="4"><span class="num">4</span> 서포트 벡터 머신은 분류 문제뿐만 아니라 회귀 분석 문제에도 적용할 수 있으며, 데이터에 노이즈나 이상치가 존재할 때 마진을 조정하는 소프트 마진 방식을 활용할 수 있다.</div>
+      </div>
+      <div class="result-banner" id="resultBanner-3"></div>
+      <div class="explanation" id="explanation-3">
+        <div class="exp-concept">
+          <div class="concept-title">💡 핵심 개념</div>
+          <strong>커널 트릭(Kernel Trick)</strong>은 원래 차원에서 선형 분리가 불가능한 데이터를
+          <span class="highlight">저차원에서 고차원 공간(High-dimensional Space)으로 매핑(변환)</span>하여
+          선형 분리가 가능하도록 만드는 기법입니다.<br>
+          '고차원 데이터를 저차원 공간으로 변환'한다는 설명은 방향이 반대로 되어 있는 틀린 설명입니다.
+        </div>
+        <div class="exp-section-title">📋 각 선지 분석</div>
+        <div class="wrong-analysis">
+          <div class="wrong-item">
+            <div class="wi-label">① 옳은 설명</div>
+            <div class="wi-formula">마진 최대화 → 최적 초평면 탐색<span class="wi-note">SVM의 기본 학습 원리</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">② 옳은 설명</div>
+            <div class="wi-formula">결정 경계에 가장 가까운 서포트 벡터만 사용<span class="wi-note">SVM이 전체 데이터가 아닌 일부 포인트에만 의존하는 특징</span></div>
+          </div>
+          <div class="wrong-item correct-item">
+            <div class="wi-label">③ 정답 (틀린 설명)</div>
+            <div class="wi-formula">커널 함수: 저차원 → 고차원 매핑 (방향이 반대로 서술됨)<span class="wi-note">비선형 데이터를 고차원 공간으로 보내야 선형 분리가 용이해짐 ✅</span></div>
+          </div>
+          <div class="wrong-item">
+            <div class="wi-label">④ 옳은 설명</div>
+            <div class="wi-formula">분류·회귀 모두 적용 가능, 소프트 마진으로 이상치 허용<span class="wi-note">SVR(회귀)과 소프트 마진에 대한 정확한 설명</span></div>
+          </div>
+        </div>
+        <div class="exp-section-title">📐 커널 트릭 정리</div>
+        <table class="stat-table">
+          <thead><tr><th>구분</th><th>공간 이동 방향</th><th>목적</th></tr></thead>
+          <tbody>
+            <tr><td>커널 트릭</td><td>저차원 → 고차원</td><td>비선형 데이터를 선형 분리 가능하게 변환</td></tr>
+            <tr><td>대표 커널</td><td>다항식(Polynomial), RBF(가우시안), 시그모이드<div class="ex">데이터 특성에 따라 선택</div></td><td>고차원 공간에서의 내적을 저차원 연산으로 대체 (계산 효율화)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="q-actions">
+        <button class="retry-q-btn" id="retryBtn-3" onclick="retryQuestion(3)">↺ 다시 풀기</button>
+      </div>
+    </div>
+
+    <!-- 제출 -->
+    <div class="submit-section" id="submitSection">
+      <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">📤 답안 제출</button>
+      <p class="submit-notice">이름과 이메일을 입력 후 제출해 주세요.</p>
+      <div class="submit-msg" id="submitMsg"></div>
+    </div>
+    <button class="retry-all-btn" id="retryAllBtn" onclick="retryAll()">↺ 전체 다시 풀기</button>
+
+  </div>
+</div>
+
+<script>
+  const QUIZ_ID = '퀴즈02';
+  const QUIZZES = [
+    { id: 1, desc: '순수 노드의 지니 지수와 엔트로피 지수',
+      labels: { '1':'①1,1', '2':'②1,0', '3':'③0,1', '4':'④0,0' },
+      correctNum: '4', wrongMsg: '오답입니다. 정답은 ④번 0, 0입니다.' },
+    { id: 2, desc: '다차원척도법(MDS)에 대한 설명 중 옳지 않은 것',
+      labels: { '1':'①유사성 정보로 저차원 시각화', '2':'②계량적 MDS', '3':'③비계량적 MDS', '4':'④동질적 그룹 형성' },
+      correctNum: '4', wrongMsg: '오답입니다. 정답은 ④번입니다. 해당 설명은 MDS가 아닌 군집분석에 대한 것입니다.' },
+    { id: 3, desc: 'SVM에 대한 설명 중 옳지 않은 것',
+      labels: { '1':'①마진 최대화', '2':'②서포트 벡터', '3':'③커널 함수', '4':'④분류·회귀·소프트마진' },
+      correctNum: '3', wrongMsg: '오답입니다. 정답은 ③번입니다. 커널 함수는 저차원을 고차원으로 매핑합니다.' },
+  ];
+
+  // ── 초기화 ────────────────────────────────────────
+  const state = {};
+  QUIZZES.forEach(q => { state[q.id] = { choice: null, correct: null }; });
+
+  // 진행 바 동적 생성
+  const progressBar = document.getElementById('progressBar');
+  QUIZZES.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 0 ? ' active' : '');
+    dot.id = `dot-${q.id}`;
+    progressBar.appendChild(dot);
+  });
+
+  // 정답 세팅 및 이벤트 등록
+  QUIZZES.forEach(q => {
+    document.querySelectorAll(`#choices-${q.id} .choice`).forEach(el => {
+      el.setAttribute('data-correct', el.getAttribute('data-choice') === q.correctNum ? 'true' : 'false');
+      el.addEventListener('click', () => handleChoice(q.id, el));
+    });
+  });
+
+  // 첫 번째 문제 활성화
+  document.getElementById('block-1').classList.add('active');
+
+  // ── 선택 처리 ─────────────────────────────────────
+  function handleChoice(qid, choiceEl) {
+    if (state[qid].choice !== null) return;
+    const chosen    = choiceEl.getAttribute('data-choice');
+    const isCorrect = choiceEl.getAttribute('data-correct') === 'true';
+    state[qid].choice  = chosen;
+    state[qid].correct = isCorrect;
+
+    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => {
+      c.classList.add('disabled');
+      if (c.getAttribute('data-correct') === 'true') c.classList.add('correct');
+      else if (c === choiceEl) c.classList.add('wrong');
+    });
+
+    const banner = document.getElementById(`resultBanner-${qid}`);
+    const q = QUIZZES[qid - 1];
+    banner.classList.add('show');
+    if (isCorrect) { banner.classList.add('correct-banner'); banner.innerHTML = '✅ 정답입니다!'; }
+    else           { banner.classList.add('wrong-banner');   banner.innerHTML = `❌ ${q.wrongMsg}`; }
+
+    document.getElementById(`explanation-${qid}`).classList.add('show');
+    document.getElementById(`retryBtn-${qid}`).classList.add('show');
+
+    // 마지막 문제면 제출 영역, 아니면 다음 문제 버튼
+    const isLast = qid === QUIZZES[QUIZZES.length - 1].id;
+    if (isLast) {
+      document.getElementById('submitSection').classList.add('show');
+    } else {
+      document.getElementById(`nextBtn-${qid}`).classList.add('show');
+    }
+
+    updateProgress(qid);
+  }
+
+  // ── 다음 문제로 이동 ──────────────────────────────
+  function nextQuestion(qid) {
+    document.getElementById(`block-${qid}`).classList.remove('active');
+    document.getElementById(`block-${qid + 1}`).classList.add('active');
+    document.getElementById(`block-${qid + 1}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── 진행 상태 ─────────────────────────────────────
+  function updateProgress(answeredQid) {
+    const dot = document.getElementById(`dot-${answeredQid}`);
+    dot.classList.remove('active');
+    dot.classList.add('done');
+    const idx = QUIZZES.findIndex(q => q.id === answeredQid);
+    if (idx + 1 < QUIZZES.length) {
+      document.getElementById(`dot-${QUIZZES[idx + 1].id}`).classList.add('active');
+    }
+  }
+
+  // ── 문제별 다시 풀기 ──────────────────────────────
+  function retryQuestion(qid) {
+    state[qid].choice = state[qid].correct = null;
+    document.querySelectorAll(`#choices-${qid} .choice`).forEach(c => c.classList.remove('disabled','correct','wrong'));
+    const banner = document.getElementById(`resultBanner-${qid}`);
+    banner.classList.remove('show','correct-banner','wrong-banner'); banner.innerHTML = '';
+    document.getElementById(`explanation-${qid}`).classList.remove('show');
+    document.getElementById(`retryBtn-${qid}`).classList.remove('show');
+
+    const nextBtn = document.getElementById(`nextBtn-${qid}`);
+    if (nextBtn) nextBtn.classList.remove('show');
+
+    const isLast = qid === QUIZZES[QUIZZES.length - 1].id;
+    if (isLast) document.getElementById('submitSection').classList.remove('show');
+
+    const dot = document.getElementById(`dot-${qid}`);
+    dot.classList.remove('done');
+    dot.classList.add('active');
+  }
+
+  // ── 전체 다시 풀기 ────────────────────────────────
+  function retryAll() {
+    QUIZZES.forEach(q => retryQuestion(q.id));
+
+    // 진행 바 초기화
+    QUIZZES.forEach((q, i) => {
+      const dot = document.getElementById(`dot-${q.id}`);
+      dot.classList.remove('done', 'active');
+      if (i === 0) dot.classList.add('active');
+    });
+
+    // 첫 문제만 보이도록
+    QUIZZES.forEach(q => {
+      const block = document.getElementById(`block-${q.id}`);
+      block.classList.remove('active');
+    });
+    document.getElementById('block-1').classList.add('active');
+
+    document.getElementById('submitSection').classList.remove('show');
+    document.getElementById('retryAllBtn').classList.remove('show');
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false; btn.textContent = '📤 답안 제출';
+    const msg = document.getElementById('submitMsg');
+    msg.classList.remove('show','sending','success','error'); msg.textContent = '';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── 제출 (Supabase 저장) ──────────────────────────
+  async function submitAnswer() {
+    const name  = document.getElementById('inputName').value.trim();
+    const email = document.getElementById('inputEmail').value.trim();
+    if (!name || !email) { alert('이름과 이메일을 모두 입력해 주세요.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('올바른 이메일 형식을 입력해 주세요.'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    const msg = document.getElementById('submitMsg');
+    btn.disabled = true; btn.textContent = '전송 중...';
+    msg.className = 'submit-msg show sending'; msg.textContent = '⏳ 저장 중입니다...';
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    const row = { quiz_id: QUIZ_ID, quiz_date: dateStr, name, email };
+    QUIZZES.forEach((q, i) => {
+      const n = i + 1;
+      row[`q${n}_choice`]  = q.labels[state[q.id].choice] || '-';
+      row[`q${n}_correct`] = state[q.id].correct;
+    });
+
+    const { error } = await _supabase.from('daily_quiz_results').insert(row);
+
+    if (error) {
+      btn.disabled = false; btn.textContent = '📤 답안 제출';
+      msg.className = 'submit-msg show error';
+      msg.textContent = `❌ 저장 실패: ${error.message}`;
+    } else {
+      btn.textContent = '✅ 제출 완료';
+      msg.className = 'submit-msg show success';
+      msg.textContent = '✅ 제출되었습니다! 수고하셨습니다.';
+      document.getElementById('retryAllBtn').classList.add('show');
+    }
+  }
+</script>
+
+</body>
+</html>
